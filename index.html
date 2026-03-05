@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2026-1 종합설계(ICIP) 참여기업 리스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+      body {
+        font-family: "Pretendard", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+      .badge-공기업 {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .badge-중견기업 {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+      }
+      .badge-외국계 {
+        background-color: #ffedd5;
+        color: #c2410c;
+      }
+      .badge-중소기업 {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .badge-스타트업 {
+        background-color: #fef3c7;
+        color: #b45309;
+      }
+    </style>
+  </head>
+  <body class="antialiased text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center gap-4"
+        >
+          <div>
+            <h1
+              class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight"
+            >
+              2026-1 종합설계(ICIP) 참여기업
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+              총 30개 프로젝트, 각 기업별 특성과 주제를 확인하세요.
+            </p>
+          </div>
+
+          <!-- Filter Buttons -->
+          <div
+            class="flex flex-wrap gap-2 justify-center"
+            id="filter-container"
+          >
+            <button
+              onclick="filterCards('전체')"
+              class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white transition-colors"
+            >
+              전체보기
+            </button>
+            <button
+              onclick="filterCards('공기업')"
+              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              공기업
+            </button>
+            <button
+              onclick="filterCards('중소기업')"
+              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              중소기업
+            </button>
+            <button
+              onclick="filterCards('스타트업')"
+              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              스타트업
+            </button>
+            <button
+              onclick="filterCards('중견/외국계')"
+              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              중견/외국계
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        id="projects-grid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <!-- Cards will be injected here by JavaScript -->
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <p class="text-gray-400 text-sm">
+          본 데이터는 제공된 이미지의 텍스트를 기반으로 작성되었으며, 기업 상세
+          정보(사원수, 연봉, 위치 등)는 잡코리아, 사람인 등 공개 데이터를
+          기반으로 추가 조사된 내용입니다. (일부 정보는 추정치이거나 비공개일 수
+          있습니다.)
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Data derived from image + enriched with size, description, urls, reference links, employees, salary, and location
+      const projectData = [
+        {
+          id: 1,
+          name: "솔트웨어(주)",
+          topic: "AI Agent Builder 플랫폼 MVP",
+          size: "중소기업",
+          url: "https://www.saltware.co.kr",
+          desc: "클라우드 및 IT 인프라 구축 전문 기업",
+          emp: "약 240명",
+          sal: "약 4,800만원",
+          loc: "서울 구로구",
+          ref: {
+            text: "솔트웨어 B2B AI/클라우드 사업 동향",
+            url: "https://search.naver.com/search.naver?query=%EC%86%94%ED%8A%B8%EC%9B%A8%EC%96%B4+AI",
+          },
+        },
+        {
+          id: 2,
+          name: "(주)넥스브이",
+          topic: "온디바이스 SLM 기반 미니 PC 구동형 심리상담 대화 서비스 개발",
+          size: "중소기업",
+          url: "https://search.naver.com/search.naver?query=(주)넥스브이",
+          desc: "AI 및 소프트웨어 솔루션 개발",
+          emp: "약 15명",
+          sal: "비공개",
+          loc: "서울 서초구",
+          ref: {
+            text: "온디바이스 SLM 심리상담 기존 연구사례",
+            url: "https://search.naver.com/search.naver?query=%EC%98%A8%EB%94%94%EB%B0%94%EC%9D%B4%EC%8A%A4+SLM+%EC%8B%AC%EB%A6%AC%EC%83%81%EB%8B%B4",
+          },
+        },
+        {
+          id: 3,
+          name: "(주)님버스테크",
+          topic: "SALESMAP 활동 자동화 AGENT",
+          size: "중소기업",
+          url: "https://search.naver.com/search.naver?query=님버스테크",
+          desc: "IT 솔루션 및 업무 자동화 서비스",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 강남구",
+          ref: {
+            text: "영업(Sales) 자동화 AI 에이전트 사례",
+            url: "https://search.naver.com/search.naver?query=%EC%98%81%EC%97%85+%EC%9E%90%EB%8F%99%ED%99%94+AI+%EC%97%90%EC%9D%B4%EC%A0%84%ED%8A%B8",
+          },
+        },
+        {
+          id: 4,
+          name: "(주)엠에이치엔씨티",
+          topic: "Vision AI 기반 도서관 서고 관리 플랫폼 개발",
+          size: "중소기업",
+          url: "http://www.mhnct.com",
+          desc: "Vision AI, IT 시스템 통합 솔루션",
+          emp: "약 20명",
+          sal: "약 3,500만원",
+          loc: "서울 마포구",
+          ref: {
+            text: "Vision AI 활용 도서관 관리 사례",
+            url: "https://search.naver.com/search.naver?query=Vision+AI+%EB%8F%84%EC%84%9C%EA%B4%80+%EA%B4%80%EB%A6%AC",
+          },
+        },
+        {
+          id: 5,
+          name: "(주)바인드소프트",
+          topic: "AI 학습 분석 및 자동 평가 시스템 구축",
+          size: "중소기업",
+          url: "http://www.bindsoft.co.kr",
+          desc: "에듀테크 및 교육용 소프트웨어 개발",
+          emp: "약 15명",
+          sal: "약 3,800만원",
+          loc: "서울 금천구",
+          ref: {
+            text: "에듀테크 AI 학습 분석 플랫폼 동향",
+            url: "https://search.naver.com/search.naver?query=AI+%ED%95%99%EC%8A%B5+%EB%B6%84%EC%84%9D+%EC%9E%90%EB%8F%99+%ED%8F%89%EA%B0%80",
+          },
+        },
+        {
+          id: 6,
+          name: "(주)레브웨어",
+          topic: "멀티 에이전트 기반 지능형 쇼핑 보조 서비스 개발",
+          size: "중소기업",
+          url: "http://www.revware.co.kr",
+          desc: "이커머스 데이터 분석 및 AI 솔루션",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "경기 성남시",
+          ref: {
+            text: "이커머스 지능형 쇼핑 AI 보조 사례",
+            url: "https://search.naver.com/search.naver?query=%EC%A7%80%EB%8A%A5%ED%98%95+%EC%87%BC%ED%95%95+%EB%B3%B4%EC%A1%B0+AI",
+          },
+        },
+        {
+          id: 7,
+          name: "(주)모노라마",
+          topic: "수술용 안경 루페 동공거리 측정기",
+          size: "중소기업",
+          url: "http://monorama.kr",
+          desc: "메디컬 IT 및 의료용 디바이스 개발",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 송파구",
+          ref: {
+            text: "수술용 루페 스마트 측정기기 동향",
+            url: "https://search.naver.com/search.naver?query=%EC%88%98%EC%88%A0%EC%9A%A9+%EB%A3%A8%ED%8E%98+%EB%8F%99%EA%B3%B5%EA%B1%B0%EB%A6%AC+%EC%B8%A1%EC%A0%95",
+          },
+        },
+        {
+          id: 8,
+          name: "(주)인젠트",
+          topic:
+            "대규모 트랜잭션 로그 기반 AI 이상 징후 탐지(Anomaly Detection) 모델 연구",
+          size: "중견기업",
+          url: "https://www.inzent.com",
+          desc: "엔터프라이즈 데이터 및 솔루션 전문",
+          emp: "약 280명",
+          sal: "약 5,200만원",
+          loc: "서울 금천구",
+          ref: {
+            text: "인젠트 AI 이상징후 탐지(FDS) 솔루션",
+            url: "https://search.naver.com/search.naver?query=%EC%9D%B8%EC%A0%A0%ED%8A%B8+AI+%EC%9D%B4%EC%83%81%EC%A7%95%ED%9B%84+%ED%83%90%EC%A7%80",
+          },
+        },
+        {
+          id: 9,
+          name: "(주)씨지인사이드",
+          topic: "사장님AI비서: 소상공인 전용 규제·계약·노무통합관리 AI Agent",
+          size: "스타트업",
+          url: "https://cginside.com",
+          desc: "리걸테크 및 규제 정보 AI 플랫폼 (아이리스)",
+          emp: "약 25명",
+          sal: "비공개",
+          loc: "서울 강남구",
+          ref: {
+            text: "[뉴스] 아이호퍼-xAI 규제 분석 플랫폼 출시",
+            url: "https://www.yna.co.kr/view/AKR20220321126300003",
+          },
+        },
+        {
+          id: 10,
+          name: "(주)씨에스리",
+          topic:
+            "AI 기반 소리 분석을 통한 청각장애인 지원 스마트시티 시각화 서비스",
+          size: "중소기업",
+          url: "http://www.cslee.co.kr",
+          desc: "빅데이터 분석 및 AI 컨설팅 전문기업",
+          emp: "약 60명",
+          sal: "약 4,500만원",
+          loc: "서울 영등포구",
+          ref: {
+            text: "청각장애인용 소리 인식 AI 개발 사례",
+            url: "https://search.naver.com/search.naver?query=%EC%B2%AD%EA%B0%81%EC%9E%A5%EC%95%A0%EC%9D%B8+AI+%EC%86%8C%EB%A6%AC+%EB%B6%84%EC%84%9D",
+          },
+        },
+        {
+          id: 11,
+          name: "(주)이분의일코리아",
+          topic: "장례문화 바꾸기 프로젝트-라이프 파노라마",
+          size: "스타트업",
+          url: "https://halfkorea.com",
+          desc: "라이프케어 및 웰다잉 장례문화 혁신 서비스",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 서초구",
+          ref: {
+            text: "AI 활용 웰다잉/추모 서비스 동향",
+            url: "https://search.naver.com/search.naver?query=AI+%EC%9E%A5%EB%A1%80%EB%AC%B8%ED%99%94+%EC%B6%94%EB%AA%A8",
+          },
+        },
+        {
+          id: 12,
+          name: "(주)하렉스인포텍",
+          topic: "AI 직거래 플랫폼 개발",
+          size: "중소기업",
+          url: "http://www.harexc.com",
+          desc: "핀테크, 결제 플랫폼(UBpay) 개발 1세대",
+          emp: "약 80명",
+          sal: "약 4,800만원",
+          loc: "서울 중구",
+          ref: {
+            text: "하렉스인포텍 AI 결제/직거래 플랫폼",
+            url: "https://search.naver.com/search.naver?query=%ED%95%98%EB%A0%89%EC%8A%A4%EC%9D%B8%ED%8F%AC%ED%85%8D+AI+%ED%94%8C%EB%9E%AB%ED%8F%BC",
+          },
+        },
+        {
+          id: 13,
+          name: "(주)비트컴퓨터",
+          topic: "의료 영상 기반 AI 보조 진단/처방 지원 시스템",
+          size: "중견기업",
+          url: "http://www.bit.kr",
+          desc: "국내 1세대 의료정보시스템 및 헬스케어 전문",
+          emp: "약 320명",
+          sal: "약 5,100만원",
+          loc: "서울 서초구",
+          ref: {
+            text: "[뉴스] 비트컴퓨터 AI 보이스 EMR 공식 출시",
+            url: "https://www.medicaltimes.com/Mobile/News/NewsView.html?ID=1165023",
+          },
+        },
+        {
+          id: 14,
+          name: "전북개발공사",
+          topic:
+            "AIoT기반 스마트 주거복지 서비스 상황공유 가드-이어(Guard-Ear)",
+          size: "공기업",
+          url: "https://www.jbdc.co.kr",
+          desc: "전라북도 지역개발 및 주거복지 전담 지방공기업",
+          emp: "약 110명",
+          sal: "약 6,200만원",
+          loc: "전북 전주시",
+          ref: {
+            text: "전북 스마트 주거복지 AIoT 도입 사례",
+            url: "https://search.naver.com/search.naver?query=%EC%A0%84%EB%B6%81%EA%B0%9C%EB%B0%9C%EA%B3%B5%EC%82%AC+%EC%8A%A4%EB%A7%88%ED%8A%B8+%EC%A3%BC%EA%B1%B0%EB%B3%B5%EC%A7%80",
+          },
+        },
+        {
+          id: 15,
+          name: "한국오라클 유한회사",
+          topic: "Enterprise Agentic AI for Data",
+          size: "외국계",
+          url: "https://www.oracle.com/kr",
+          desc: "글로벌 데이터베이스 및 엔터프라이즈 클라우드",
+          emp: "약 1,200명",
+          sal: "약 8,500만원",
+          loc: "서울 강남구",
+          ref: {
+            text: "오라클 엔터프라이즈 AI 서비스 공식 안내",
+            url: "https://www.oracle.com/kr/artificial-intelligence/",
+          },
+        },
+        {
+          id: 16,
+          name: "(주)피플밤",
+          topic: "AI예측기반커피생두구매의사결정",
+          size: "스타트업",
+          url: "https://search.naver.com/search.naver?query=(주)피플밤",
+          desc: "F&B 및 커피 산업 데이터 분석 AI 솔루션",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 마포구",
+          ref: {
+            text: "원두 가격 예측 AI 머신러닝 논문/사례",
+            url: "https://search.naver.com/search.naver?query=%EC%BB%A4%ED%94%BC+%EC%83%9D%EB%91%90+%EA%B0%80%EA%B2%A9+%EC%98%88%EC%B8%A1+AI",
+          },
+        },
+        {
+          id: 17,
+          name: "(주)리버스마운틴",
+          topic: "1on1 미팅 데이터를 활용한 People Analytics",
+          size: "스타트업",
+          url: "https://reversemountain.co.kr/",
+          desc: "HR 테크 및 피플 애널리틱스 전문",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 강남구",
+          ref: {
+            text: "리버스마운틴 HR 피플 애널리틱스 기술",
+            url: "https://search.naver.com/search.naver?query=%EB%A6%AC%EB%B2%84%EC%8A%A4%EB%A7%88%EC%9A%B4%ED%8B%B4+HR+AI",
+          },
+        },
+        {
+          id: 18,
+          name: "(주)리버스마운틴",
+          topic: "B2B 인재/성과관리 AI 서비스 제안",
+          size: "스타트업",
+          url: "https://reversemountain.co.kr/",
+          desc: "HR 테크 및 피플 애널리틱스 전문",
+          emp: "약 10명",
+          sal: "비공개",
+          loc: "서울 강남구",
+          ref: {
+            text: "리버스마운틴 HR 피플 애널리틱스 기술",
+            url: "https://search.naver.com/search.naver?query=%EB%A6%AC%EB%B2%84%EC%8A%A4%EB%A7%88%EC%9A%B4%ED%8B%B4+HR+AI",
+          },
+        },
+        {
+          id: 19,
+          name: "(주)퓨잇",
+          topic: '위기 인지 기반 "정상 대화 유지 + 안전 알림" 로봇 에이전트',
+          size: "스타트업",
+          url: "https://pueit.com",
+          desc: "로봇 소프트웨어 및 AI 에이전트 개발",
+          emp: "약 5명",
+          sal: "비공개",
+          loc: "경기 수원시",
+          ref: {
+            text: "돌봄 로봇 위기 인지 AI 에이전트 사례",
+            url: "https://search.naver.com/search.naver?query=%EC%9C%84%EA%B8%B0+%EC%9D%B8%EC%A7%80+%EC%95%88%EC%A0%84+%EC%95%8C%EB%A6%BC+%EB%A1%9C%EB%B4%87+AI",
+          },
+        },
+        {
+          id: 20,
+          name: "(주)데이타몬드",
+          topic:
+            "멀티모달 데이터 정합성 검증을 위한 VLM 기반 자동 QA 모델 개발",
+          size: "스타트업",
+          url: "https://www.datamond.co.kr",
+          desc: "제로파티 데이터 및 AI 검증 솔루션",
+          emp: "약 15명",
+          sal: "비공개",
+          loc: "서울 성동구",
+          ref: {
+            text: "VLM 기반 데이터 정합성 QA 연구",
+            url: "https://search.naver.com/search.naver?query=VLM+%EB%8D%B0%EC%9D%B4%ED%84%B0+%EC%A0%95%ED%95%A9%EC%84%B1+QA",
+          },
+        },
+        {
+          id: 21,
+          name: "(주)프레쉬아워",
+          topic: "LLM 기반 펫 헬스케어 예측/영양 솔루션 챗봇 개발",
+          size: "스타트업",
+          url: "https://freshhour.co.kr",
+          desc: "반려동물 맞춤형 헬스케어 및 푸드테크 (바프독)",
+          emp: "약 20명",
+          sal: "비공개",
+          loc: "서울 강남구",
+          ref: {
+            text: "프레쉬아워 펫 푸드테크 맞춤 솔루션",
+            url: "https://search.naver.com/search.naver?query=%ED%94%84%EB%A0%88%EC%89%AC%EC%95%84%EC%9B%8C+%ED%8E%AB+%ED%97%AC%EC%8A%A4%EC%BC%80%EC%96%B4+AI",
+          },
+        },
+        {
+          id: 22,
+          name: "(주)한국아이티컨설팅",
+          topic: "기업(기관)의 AI전환(AX) 방법론 연구",
+          size: "중소기업",
+          url: "http://www.kitc.co.kr",
+          desc: "공공/민간 부문 정보화 및 IT 전략 컨설팅 전문",
+          emp: "약 150명",
+          sal: "약 5,000만원",
+          loc: "서울 금천구",
+          ref: {
+            text: "기업 공공기관 AI 전환(AX) 전략 사례",
+            url: "https://search.naver.com/search.naver?query=%EA%B8%B0%EC%97%85+AI+%EC%A0%84%ED%99%98+AX+%EB%B0%A9%EB%B2%95%EB%A1%A0",
+          },
+        },
+        {
+          id: 23,
+          name: "서울교통공사",
+          topic: "AI 기반 역사 상수도 요금 이상징후 사전 탐지 및 알림 서비스",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철(1~8호선) 운영 및 대중교통 인프라 관리",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 24,
+          name: "서울교통공사",
+          topic: "AI 기반 챗봇 학습데이터 현행화 지원 시스템 구축",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 25,
+          name: "서울교통공사",
+          topic: "생성형 AI 활용 근무복 디자인 개선 참여형 의사결정 시스템",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 26,
+          name: "서울교통공사",
+          topic: "생성형 AI 활용 민원 자동배부시스템 구축",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 27,
+          name: "서울교통공사",
+          topic: "승무원 마스터 가이드 다알지(Da-AI-G)",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 28,
+          name: "서울교통공사",
+          topic: "인공지능 기반 지능형 라돈 관리 시스템",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 29,
+          name: "서울교통공사",
+          topic: "AI기반 지하철 역급지 조정 및 가치분석",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+        {
+          id: 30,
+          name: "서울교통공사",
+          topic: "AI를 활용한 언론대응 능력 고도화 프로그램 개발",
+          size: "공기업",
+          url: "http://www.seoulmetro.co.kr",
+          desc: "서울 지하철 운영 및 스마트 교통 시스템",
+          emp: "약 16,300명",
+          sal: "약 7,300만원",
+          loc: "서울 성동구",
+          ref: {
+            text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
+            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
+          },
+        },
+      ];
+
+      const grid = document.getElementById("projects-grid");
+
+      function renderCards(data) {
+        grid.innerHTML = "";
+        data.forEach((item) => {
+          // Determine grouping class for complex filter
+          let filterGroup = item.size;
+          if (item.size === "중견기업" || item.size === "외국계")
+            filterGroup = "중견/외국계";
+
+          const card = document.createElement("div");
+          card.className =
+            "bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover flex flex-col h-full";
+
+          // Determine correct icon based on size
+          let iconClass = "fa-building";
+          if (item.size === "공기업") iconClass = "fa-landmark";
+          if (item.size === "스타트업") iconClass = "fa-rocket";
+          if (item.size === "외국계" || item.size === "중견기업")
+            iconClass = "fa-city";
+
+          card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-bold text-gray-400">NO. ${item.id.toString().padStart(2, "0")}</span>
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-full badge-${item.size}">${item.size}</span>
+                    </div>
+                    
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 leading-snug flex-grow">${item.topic}</h3>
+                    
+                    <div class="pt-4 border-t border-gray-100 mt-auto flex flex-col">
+                        <div class="flex items-center text-gray-800 font-semibold mb-1">
+                            <i class="fas ${iconClass} text-gray-400 mr-2"></i> ${item.name}
+                        </div>
+                        <p class="text-sm text-gray-500 mb-2 line-clamp-2" title="${item.desc}">${item.desc}</p>
+                        
+                        <!-- 추가된 사원수, 연봉, 주소 정보 섹션 -->
+                        <div class="grid grid-cols-2 gap-y-1.5 gap-x-2 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                            <div class="text-xs text-gray-600 flex items-center" title="사원수">
+                                <i class="fas fa-users w-4 text-center text-gray-400 mr-1.5"></i> ${item.emp}
+                            </div>
+                            <div class="text-xs text-gray-600 flex items-center" title="평균연봉">
+                                <i class="fas fa-money-bill-wave w-4 text-center text-gray-400 mr-1.5"></i> ${item.sal}
+                            </div>
+                            <div class="text-xs text-gray-600 flex items-center col-span-2" title="위치">
+                                <i class="fas fa-map-marker-alt w-4 text-center text-gray-400 mr-1.5"></i> ${item.loc}
+                            </div>
+                        </div>
+                        
+                        ${
+                          item.ref
+                            ? `
+                        <a href="${item.ref.url}" target="_blank" class="mb-4 inline-flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium bg-blue-50 px-2.5 py-1.5 rounded w-fit transition-colors">
+                            <i class="fas fa-book-open mr-1.5"></i> ${item.ref.text}
+                        </a>
+                        `
+                            : ""
+                        }
+                        
+                        <a href="${item.url}" target="_blank" class="mt-auto inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200 shadow-sm">
+                            ${item.url.includes("search.naver") ? '<i class="fas fa-search mr-2"></i> 기업 정보 검색' : '<i class="fas fa-external-link-alt mr-2"></i> 웹사이트 방문'}
+                        </a>
+                    </div>
+                `;
+          grid.appendChild(card);
+        });
+      }
+
+      function filterCards(size) {
+        // Update active button styling
+        const buttons = document.querySelectorAll(".filter-btn");
+        buttons.forEach((btn) => {
+          if (
+            btn.innerText === size ||
+            (size === "전체" && btn.innerText === "전체보기")
+          ) {
+            btn.classList.remove("bg-gray-100", "text-gray-600");
+            btn.classList.add("bg-blue-600", "text-white");
+          } else {
+            btn.classList.remove("bg-blue-600", "text-white");
+            btn.classList.add("bg-gray-100", "text-gray-600");
+          }
+        });
+
+        // Filter logic
+        if (size === "전체") {
+          renderCards(projectData);
+        } else if (size === "중견/외국계") {
+          renderCards(
+            projectData.filter(
+              (d) => d.size === "중견기업" || d.size === "외국계",
+            ),
+          );
+        } else {
+          renderCards(projectData.filter((d) => d.size === size));
+        }
+      }
+
+      // Initial render
+      renderCards(projectData);
+    </script>
+  </body>
+</html>
