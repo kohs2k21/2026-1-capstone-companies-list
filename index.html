@@ -64,41 +64,56 @@
             </p>
           </div>
 
-          <!-- Filter Buttons -->
-          <div
-            class="flex flex-wrap gap-2 justify-center"
-            id="filter-container"
-          >
-            <button
-              onclick="filterCards('전체')"
-              class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white transition-colors"
-            >
-              전체보기
-            </button>
-            <button
-              onclick="filterCards('공기업')"
-              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              공기업
-            </button>
-            <button
-              onclick="filterCards('중소기업')"
-              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              중소기업
-            </button>
-            <button
-              onclick="filterCards('스타트업')"
-              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              스타트업
-            </button>
-            <button
-              onclick="filterCards('중견/외국계')"
-              class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              중견/외국계
-            </button>
+            <!-- Filter & Sort Controls -->
+            <div class="flex flex-wrap items-center gap-4 justify-center">
+              <div class="flex flex-wrap gap-2" id="filter-container">
+                <button
+                  onclick="filterCards('전체')"
+                  class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white transition-colors"
+                >
+                  전체보기
+                </button>
+                <button
+                  onclick="filterCards('공기업')"
+                  class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  공기업
+                </button>
+                <button
+                  onclick="filterCards('중소기업')"
+                  class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  중소기업
+                </button>
+                <button
+                  onclick="filterCards('스타트업')"
+                  class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  스타트업
+                </button>
+                <button
+                  onclick="filterCards('중견/외국계')"
+                  class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  중견/외국계
+                </button>
+              </div>
+
+              <!-- Sort Dropdown -->
+              <div class="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                <label for="sort-select" class="text-xs font-bold text-gray-500 uppercase tracking-wider">정렬</label>
+                <select 
+                  id="sort-select" 
+                  onchange="applySort(this.value)"
+                  class="bg-transparent text-sm font-semibold text-gray-700 focus:outline-none cursor-pointer"
+                >
+                  <option value="default">기본순 (번호)</option>
+                  <option value="emp-desc">사원수 많은순</option>
+                  <option value="emp-asc">사원수 적은순</option>
+                  <option value="sal-desc">연봉 높은순</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -520,7 +535,6 @@
           loc: "서울 성동구",
           ref: {
             text: "[참고] 서울교통공사 '2026 AI 전환 원년' 선포",
-            url: "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8%EA%B5%90%ED%86%B5%EA%B3%B5%EC%82%AC+AI+%EC%A0%84%ED%99%98",
           },
         },
         {
@@ -586,20 +600,23 @@
       ];
 
       const grid = document.getElementById("projects-grid");
+      let currentFilter = "전체";
+      let currentSort = "default";
+
+      // Utility to parse numbers from strings like "약 4,800만원" or "약 240명"
+      function parseNumericValue(str) {
+        if (!str || str === "비공개") return 0;
+        const num = parseInt(str.replace(/[^0-9]/g, ""));
+        return isNaN(num) ? 0 : num;
+      }
 
       function renderCards(data) {
         grid.innerHTML = "";
         data.forEach((item) => {
-          // Determine grouping class for complex filter
-          let filterGroup = item.size;
-          if (item.size === "중견기업" || item.size === "외국계")
-            filterGroup = "중견/외국계";
-
           const card = document.createElement("div");
           card.className =
             "bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover flex flex-col h-full";
 
-          // Determine correct icon based on size
           let iconClass = "fa-building";
           if (item.size === "공기업") iconClass = "fa-landmark";
           if (item.size === "스타트업") iconClass = "fa-rocket";
@@ -620,7 +637,6 @@
                         </div>
                         <p class="text-sm text-gray-500 mb-2 line-clamp-2" title="${item.desc}">${item.desc}</p>
                         
-                        <!-- 추가된 사원수, 연봉, 주소 정보 섹션 -->
                         <div class="grid grid-cols-2 gap-y-1.5 gap-x-2 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                             <div class="text-xs text-gray-600 flex items-center" title="사원수">
                                 <i class="fas fa-users w-4 text-center text-gray-400 mr-1.5"></i> ${item.emp}
@@ -652,14 +668,18 @@
         });
       }
 
+      function applySort(sortType) {
+        currentSort = sortType;
+        filterCards(currentFilter);
+      }
+
       function filterCards(size) {
-        // Update active button styling
+        currentFilter = size;
+        
         const buttons = document.querySelectorAll(".filter-btn");
         buttons.forEach((btn) => {
-          if (
-            btn.innerText === size ||
-            (size === "전체" && btn.innerText === "전체보기")
-          ) {
+          const btnText = btn.innerText.trim();
+          if (btnText === size || (size === "전체" && btnText === "전체보기")) {
             btn.classList.remove("bg-gray-100", "text-gray-600");
             btn.classList.add("bg-blue-600", "text-white");
           } else {
@@ -668,21 +688,32 @@
           }
         });
 
-        // Filter logic
-        if (size === "전체") {
-          renderCards(projectData);
-        } else if (size === "중견/외국계") {
-          renderCards(
-            projectData.filter(
-              (d) => d.size === "중견기업" || d.size === "외국계",
-            ),
-          );
-        } else {
-          renderCards(projectData.filter((d) => d.size === size));
+        let filteredData = [...projectData];
+        if (size === "중견/외국계") {
+          filteredData = projectData.filter(d => d.size === "중견기업" || d.size === "외국계");
+        } else if (size !== "전체") {
+          filteredData = projectData.filter(d => d.size === size);
         }
+
+        if (currentSort === "emp-desc") {
+          filteredData.sort((a, b) => parseNumericValue(b.emp) - parseNumericValue(a.emp));
+        } else if (currentSort === "emp-asc") {
+          filteredData.sort((a, b) => {
+            const valA = parseNumericValue(a.emp);
+            const valB = parseNumericValue(b.emp);
+            if (valA === 0) return 1;
+            if (valB === 0) return -1;
+            return valA - valB;
+          });
+        } else if (currentSort === "sal-desc") {
+          filteredData.sort((a, b) => parseNumericValue(b.sal) - parseNumericValue(a.sal));
+        } else if (currentSort === "default") {
+          filteredData.sort((a, b) => a.id - b.id);
+        }
+
+        renderCards(filteredData);
       }
 
-      // Initial render
       renderCards(projectData);
     </script>
   </body>
