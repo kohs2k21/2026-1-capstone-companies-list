@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <link
       href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
@@ -188,6 +192,34 @@
         margin-bottom: 8px;
       }
 
+      .schema-accordion-summary::-webkit-details-marker {
+        display: none;
+      }
+      .accordion-chevron {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+      }
+      .accordion-chevron-up {
+        display: none;
+      }
+      details[open] .accordion-chevron-down {
+        display: none;
+      }
+      details[open] .accordion-chevron-up {
+        display: inline-flex;
+      }
+      .brand-icon {
+        font-size: 1.3rem;
+        color: #2b4c7e;
+      }
+      .nav-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.1rem;
+        font-size: 1rem;
+      }
+
       .report-table {
         width: 100%;
         border-collapse: collapse;
@@ -338,14 +370,16 @@
     </style>
   </head>
   <body class="flex h-screen antialiased">
-    <a href="../" class="home-fab" aria-label="상위 허브로 돌아가기">← 홈</a>
+    <a href="../" class="home-fab" aria-label="상위 허브로 돌아가기"
+      ><i class="ti ti-arrow-left" aria-hidden="true"></i> 홈</a
+    >
     <!-- ════════════════════════════ SIDEBAR ════════════════════════════ -->
     <nav
       class="w-60 bg-cardbg border-r border-bordercolor flex flex-col h-full shadow-sm shrink-0"
     >
       <div class="p-5 border-b border-bordercolor">
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-xl">📊</span>
+          <i class="ti ti-chart-bar brand-icon" aria-hidden="true"></i>
           <h1 class="text-base font-bold text-primary">AI Lab</h1>
         </div>
         <p class="text-xs text-textmuted leading-relaxed">
@@ -360,7 +394,16 @@
           id="nav-erd"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-semibold transition-colors rounded-r-lg mr-2 bg-primary text-white border-r-4 border-accent mb-4"
         >
-          <span class="mr-2">🗂️</span> ER 다이어그램
+          <i class="ti ti-schema nav-icon mr-2" aria-hidden="true"></i> ER
+          다이어그램
+        </button>
+        <button
+          onclick="switchTab('sqlschema')"
+          id="nav-sqlschema"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <i class="ti ti-database nav-icon mr-2" aria-hidden="true"></i> SQL
+          구조
         </button>
 
         <div class="h-4"></div>
@@ -371,35 +414,43 @@
           id="nav-transaction"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
-          <span class="mr-2">⏱️</span> Transaction
+          <i class="ti ti-clock-hour-4 nav-icon mr-2" aria-hidden="true"></i>
+          Transaction
         </button>
         <button
           onclick="switchTab('process')"
           id="nav-process"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
-          <span class="mr-2">⚙️</span> Process
+          <i class="ti ti-settings nav-icon mr-2" aria-hidden="true"></i>
+          Process
         </button>
         <button
           onclick="switchTab('message')"
           id="nav-message"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
-          <span class="mr-2">📦</span> Message
+          <i class="ti ti-package nav-icon mr-2" aria-hidden="true"></i>
+          Message
         </button>
         <button
           onclick="switchTab('body')"
           id="nav-body"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
-          <span class="mr-2">🔍</span> Message Body
+          <i class="ti ti-search nav-icon mr-2" aria-hidden="true"></i>
+          Message Body
         </button>
         <button
           onclick="switchTab('jsonreport')"
           id="nav-jsonreport"
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
-          <span class="mr-2">🧾</span> JSON 파싱 보고서
+          <i
+            class="ti ti-file-description nav-icon mr-2"
+            aria-hidden="true"
+          ></i>
+          JSON 파싱 보고서
         </button>
       </div>
 
@@ -599,6 +650,561 @@
                     >MESSAGE_IN / OUT / BODY (CLOB)</span
                   >
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────── SQL SCHEMA TAB ─────────────── -->
+        <div id="tab-sqlschema" class="tab-content">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-textmain">SQL 스키마 구조</h2>
+            <p class="text-sm text-textmuted mt-1">
+              ESB.SQL 기준 DDL 구조 정리 및 조인 쿼리 작성 시 확인 포인트
+            </p>
+          </div>
+
+          <div class="grid grid-cols-12 gap-4 mb-5">
+            <div class="stat-card col-span-3">
+              <p class="stat-label">Table Count</p>
+              <p class="stat-value">4</p>
+            </div>
+            <div class="stat-card col-span-3">
+              <p class="stat-label">Primary Key</p>
+              <p class="stat-value">4</p>
+            </div>
+            <div class="stat-card col-span-3">
+              <p class="stat-label">Index (Defined)</p>
+              <p class="stat-value">7</p>
+            </div>
+            <div class="stat-card col-span-3">
+              <p class="stat-label">Join Core Keys</p>
+              <p class="stat-value">TRANSACTION_ID / PROCESS_ID / MESSAGE_ID</p>
+            </div>
+          </div>
+
+          <div
+            class="bg-cardbg rounded-xl border border-bordercolor p-5 mb-5 shadow-sm"
+          >
+            <p class="section-label">핵심 관계</p>
+            <div class="grid grid-cols-12 gap-3 text-sm text-textmain">
+              <div class="col-span-12 md:col-span-3 check-item">
+                <span class="check-dot"></span>
+                <span
+                  ><strong>1) TRANSACTION</strong><br />트랜잭션 단위 상위
+                  엔터티</span
+                >
+              </div>
+              <div class="col-span-12 md:col-span-3 check-item">
+                <span class="check-dot"></span>
+                <span
+                  ><strong>2) PROCESS</strong><br />트랜잭션 하위 프로세스
+                  단계</span
+                >
+              </div>
+              <div class="col-span-12 md:col-span-3 check-item">
+                <span class="check-dot"></span>
+                <span
+                  ><strong>3) MESSAGE</strong><br />프로세스 하위 메시지
+                  단위</span
+                >
+              </div>
+              <div class="col-span-12 md:col-span-3 check-item">
+                <span class="check-dot"></span>
+                <span
+                  ><strong>4) MESSAGE_BODY</strong><br />메시지 원문(CLOB)
+                  저장</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <details
+              class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <summary
+                class="schema-accordion-summary flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none"
+              >
+                <h3 class="text-base font-bold text-primary">
+                  EC_TRANSACTION_MONITORING
+                </h3>
+                <div class="flex items-center gap-2">
+                  <span class="field-chip"
+                    >PK: (TRANSACTION_ID, PROCESS_HUB_ID, RETRY_COUNT)</span
+                  >
+                  <i
+                    class="ti ti-chevron-down accordion-chevron accordion-chevron-down"
+                    aria-hidden="true"
+                  ></i>
+                  <i
+                    class="ti ti-chevron-up accordion-chevron accordion-chevron-up"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+              </summary>
+              <div class="mt-3">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>컬럼</th>
+                      <th>타입</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>TRANSACTION_ID</td>
+                      <td>VARCHAR2(80)</td>
+                      <td>트랜잭션 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>INTERFACE_ID</td>
+                      <td>VARCHAR2(30)</td>
+                      <td>인터페이스 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_HUB_ID</td>
+                      <td>VARCHAR2(20)</td>
+                      <td>처리 허브 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>START_CHANNEL_ID / END_CHANNEL_ID</td>
+                      <td>VARCHAR2(20)</td>
+                      <td>시작/종료 채널 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_COUNT</td>
+                      <td>NUMBER</td>
+                      <td>프로세스 수</td>
+                    </tr>
+                    <tr>
+                      <td>STATUS / RESPONSE_CODE</td>
+                      <td>VARCHAR2(10)</td>
+                      <td>처리 상태/응답 코드</td>
+                    </tr>
+                    <tr>
+                      <td>RESPONSE_MESSAGE</td>
+                      <td>VARCHAR2(500)</td>
+                      <td>응답 메시지</td>
+                    </tr>
+                    <tr>
+                      <td>INTERFACE_TYPE</td>
+                      <td>VARCHAR2(10)</td>
+                      <td>인터페이스 타입</td>
+                    </tr>
+                    <tr>
+                      <td>CATEGORY_NAME</td>
+                      <td>VARCHAR2(75)</td>
+                      <td>카테고리 이름</td>
+                    </tr>
+                    <tr>
+                      <td>START_TIME / END_TIME</td>
+                      <td>TIMESTAMP</td>
+                      <td>시작/종료 시간</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_TIME</td>
+                      <td>NUMBER</td>
+                      <td>처리 시간</td>
+                    </tr>
+                    <tr>
+                      <td>RETRY_COUNT</td>
+                      <td>NUMBER DEFAULT 0 NOT NULL</td>
+                      <td>재시도 횟수</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+            <details
+              class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <summary
+                class="schema-accordion-summary flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none"
+              >
+                <h3 class="text-base font-bold text-primary">
+                  EC_PROCESS_MONITORING
+                </h3>
+                <div class="flex items-center gap-2">
+                  <span class="field-chip"
+                    >PK: (TRANSACTION_ID, PROCESS_ID, RETRY_COUNT)</span
+                  >
+                  <i
+                    class="ti ti-chevron-down accordion-chevron accordion-chevron-down"
+                    aria-hidden="true"
+                  ></i>
+                  <i
+                    class="ti ti-chevron-up accordion-chevron accordion-chevron-up"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+              </summary>
+              <div class="mt-3">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>컬럼</th>
+                      <th>타입</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>TRANSACTION_ID</td>
+                      <td>VARCHAR2(80)</td>
+                      <td>트랜잭션 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_ID</td>
+                      <td>VARCHAR2(36)</td>
+                      <td>프로세스 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>DEPEND_PROCESS_ID</td>
+                      <td>VARCHAR2(36)</td>
+                      <td>의존 프로세스 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_HUB_ID</td>
+                      <td>VARCHAR2(30)</td>
+                      <td>처리 허브 채널 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>ADAPTER_TYPE / CHANNEL_ID</td>
+                      <td>VARCHAR2(30) / VARCHAR2(20)</td>
+                      <td>어댑터 종류 / 채널 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>STATUS / RESPONSE_CODE</td>
+                      <td>VARCHAR2(10)</td>
+                      <td>처리 상태/응답 코드</td>
+                    </tr>
+                    <tr>
+                      <td>RESPONSE_MESSAGE</td>
+                      <td>VARCHAR2(500)</td>
+                      <td>응답 메시지</td>
+                    </tr>
+                    <tr>
+                      <td>TOTAL_COUNT / SUCCESS_COUNT / ERROR_COUNT</td>
+                      <td>NUMBER</td>
+                      <td>전체/성공/실패 건수</td>
+                    </tr>
+                    <tr>
+                      <td>START_TIME / END_TIME</td>
+                      <td>TIMESTAMP</td>
+                      <td>시작/종료 시간</td>
+                    </tr>
+                    <tr>
+                      <td>RETRY_COUNT</td>
+                      <td>NUMBER DEFAULT 0 NOT NULL</td>
+                      <td>재시도 횟수</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+            <details
+              class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <summary
+                class="schema-accordion-summary flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none"
+              >
+                <h3 class="text-base font-bold text-primary">
+                  EC_MESSAGE_MONITORING
+                </h3>
+                <div class="flex items-center gap-2">
+                  <span class="field-chip"
+                    >PK: (TRANSACTION_ID, PROCESS_ID, MESSAGE_ID)</span
+                  >
+                  <i
+                    class="ti ti-chevron-down accordion-chevron accordion-chevron-down"
+                    aria-hidden="true"
+                  ></i>
+                  <i
+                    class="ti ti-chevron-up accordion-chevron accordion-chevron-up"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+              </summary>
+              <div class="mt-3">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>컬럼</th>
+                      <th>타입</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>TRANSACTION_ID / PROCESS_ID / MESSAGE_ID</td>
+                      <td>VARCHAR2(80/36/36)</td>
+                      <td>트랜잭션/프로세스/메시지 식별자</td>
+                    </tr>
+                    <tr>
+                      <td>MESSAGE_INDEX</td>
+                      <td>INTEGER</td>
+                      <td>메시지 인덱스</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_CHANNEL_ID</td>
+                      <td>VARCHAR2(20)</td>
+                      <td>처리 채널 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>DATA_TYPE / DATA_NAME</td>
+                      <td>VARCHAR2(10) / VARCHAR2(1000)</td>
+                      <td>데이터 타입/이름</td>
+                    </tr>
+                    <tr>
+                      <td>DIRECTION</td>
+                      <td>VARCHAR2(3)</td>
+                      <td>메시지 방향</td>
+                    </tr>
+                    <tr>
+                      <td>STATUS / RESPONSE_CODE</td>
+                      <td>VARCHAR2(10)</td>
+                      <td>처리 상태/응답 코드</td>
+                    </tr>
+                    <tr>
+                      <td>RESPONSE_MESSAGE</td>
+                      <td>VARCHAR2(500)</td>
+                      <td>응답 메시지</td>
+                    </tr>
+                    <tr>
+                      <td>DATA_SIZE</td>
+                      <td>NUMBER</td>
+                      <td>데이터 크기</td>
+                    </tr>
+                    <tr>
+                      <td>SUCCESS_COUNT / ERROR_COUNT</td>
+                      <td>NUMBER</td>
+                      <td>성공/실패 건수</td>
+                    </tr>
+                    <tr>
+                      <td>PROCESS_DT / START_TIME / END_TIME</td>
+                      <td>TIMESTAMP</td>
+                      <td>처리/시작/종료 시각</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+            <details
+              class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <summary
+                class="schema-accordion-summary flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none"
+              >
+                <h3 class="text-base font-bold text-primary">
+                  EC_MESSAGE_BODY
+                </h3>
+                <div class="flex items-center gap-2">
+                  <span class="field-chip">PK: (MESSAGE_ID)</span>
+                  <i
+                    class="ti ti-chevron-down accordion-chevron accordion-chevron-down"
+                    aria-hidden="true"
+                  ></i>
+                  <i
+                    class="ti ti-chevron-up accordion-chevron accordion-chevron-up"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+              </summary>
+              <div class="mt-3">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>컬럼</th>
+                      <th>타입</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>MESSAGE_ID</td>
+                      <td>VARCHAR2(36)</td>
+                      <td>메시지 아이디</td>
+                    </tr>
+                    <tr>
+                      <td>MESSAGE_IN</td>
+                      <td>CLOB</td>
+                      <td>메시지 입력 BODY</td>
+                    </tr>
+                    <tr>
+                      <td>MESSAGE_OUT</td>
+                      <td>CLOB</td>
+                      <td>메시지 출력 BODY</td>
+                    </tr>
+                    <tr>
+                      <td>MESSAGE_BODY</td>
+                      <td>CLOB</td>
+                      <td>메시지 BODY</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+
+          <div
+            class="bg-cardbg rounded-xl border border-bordercolor p-5 mt-5 shadow-sm"
+          >
+            <p class="section-label">ESB.SQL TODO : INDEX 설정 제안</p>
+            <p class="text-xs text-textmuted mb-3">
+              EC_MESSAGE_MONITORING의 TODO 위치에 아래 인덱스를 우선 검토하세요.
+            </p>
+            <pre
+              class="text-[0.74rem] leading-6 bg-warmbg rounded-lg border border-bordercolor p-4 overflow-x-auto"
+            ><code>-- MESSAGE_BODY 조인 성능 보완
+CREATE INDEX EC_MESSAGE_MONITORING_MESSAGE_ID_IDX
+    ON EC_MESSAGE_MONITORING (MESSAGE_ID);
+
+-- 오류/상태 + 시간 범위 조회 최적화
+CREATE INDEX EC_MESSAGE_MONITORING_STATUS_START_TIME_IDX
+    ON EC_MESSAGE_MONITORING (STATUS, START_TIME);
+
+-- 채널 단위 모니터링 + 시간 범위 조회 최적화
+CREATE INDEX EC_MESSAGE_MONITORING_CHANNEL_START_TIME_IDX
+    ON EC_MESSAGE_MONITORING (PROCESS_CHANNEL_ID, START_TIME);</code></pre>
+
+            <div class="grid grid-cols-12 gap-4 mt-4">
+              <div class="col-span-12 md:col-span-6">
+                <p class="section-label">왜 필요한가</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      ><strong>MESSAGE_ID 단독 인덱스:</strong> PK가
+                      (TRANSACTION_ID, PROCESS_ID, MESSAGE_ID)라서
+                      MESSAGE_ID만으로 조인할 때 비효율이 발생할 수 있습니다.
+                      MESSAGE_BODY와 조인 시 체감 차이가 큽니다.</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      ><strong>STATUS + START_TIME:</strong> 장애/오류 조회는
+                      상태 필터 + 최근 시간대 조건을 함께 사용하는 패턴이 많아
+                      복합 인덱스가 유리합니다.</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      ><strong>PROCESS_CHANNEL_ID + START_TIME:</strong> 채널별
+                      트래픽/장애 모니터링의 대표 조회 패턴을 직접
+                      커버합니다.</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-span-12 md:col-span-6">
+                <p class="section-label">적용 전 체크</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">쓰기 부하 확인</p>
+                    인덱스가 늘어나면 INSERT/UPDATE 비용이 증가합니다. 로그
+                    적재량이 큰 구간에서는 인덱스 수를 최소화하는 전략이
+                    필요합니다.
+                  </div>
+                  <div class="tip-item">
+                    <p class="tip-label">실행계획 검증</p>
+                    EXPLAIN PLAN으로 실제 운영 쿼리가 해당 인덱스를 타는지
+                    확인하고, 타지 않으면 컬럼 순서나 조건식을 조정하세요.
+                  </div>
+                  <div class="tip-item">
+                    <p class="tip-label">CLOB 인덱스 주의</p>
+                    MESSAGE_IN / MESSAGE_OUT / MESSAGE_BODY 같은 CLOB 컬럼은
+                    일반 B-Tree 인덱스 대상이 아닙니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5 mt-5">
+            <div
+              class="col-span-12 lg:col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">조인 관련 권장 TODO</p>
+              <div class="space-y-2">
+                <div class="check-item">
+                  <span class="check-dot"></span
+                  ><span
+                    >TRANSACTION ↔ PROCESS 조인 시
+                    <strong>TRANSACTION_ID + RETRY_COUNT 정합성</strong> 기준을
+                    먼저 합의하기</span
+                  >
+                </div>
+                <div class="check-item">
+                  <span class="check-dot"></span
+                  ><span
+                    >PROCESS ↔ MESSAGE 조인 시 중복 방지를 위해
+                    <strong>(TRANSACTION_ID, PROCESS_ID)</strong> 기준으로 1차
+                    검증 쿼리 작성</span
+                  >
+                </div>
+                <div class="check-item">
+                  <span class="check-dot"></span
+                  ><span
+                    >MESSAGE ↔ MESSAGE_BODY 조인 전
+                    <strong>MESSAGE_ID null/중복</strong> 점검 쿼리 상시화</span
+                  >
+                </div>
+                <div class="check-item">
+                  <span class="check-dot"></span
+                  ><span
+                    >시간 필터는 START_TIME 중심으로 통일하고, 기간 조건에서
+                    인덱스 사용 여부 실행계획 확인</span
+                  >
+                </div>
+                <div class="check-item">
+                  <span class="check-dot"></span
+                  ><span
+                    >응답/상태 코드 분석 시
+                    <strong>STATUS + RESPONSE_CODE</strong> 복합 분포를 함께
+                    집계</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="col-span-12 lg:col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">조인 쿼리 스켈레톤</p>
+              <pre
+                class="text-[0.74rem] leading-6 bg-warmbg rounded-lg border border-bordercolor p-4 overflow-x-auto"
+              ><code>-- 1) 트랜잭션-프로세스
+SELECT t.TRANSACTION_ID, t.RETRY_COUNT, p.PROCESS_ID, p.STATUS
+FROM EC_TRANSACTION_MONITORING t
+JOIN EC_PROCESS_MONITORING p
+  ON t.TRANSACTION_ID = p.TRANSACTION_ID
+WHERE t.START_TIME BETWEEN :from_ts AND :to_ts;
+
+-- 2) 프로세스-메시지
+SELECT p.TRANSACTION_ID, p.PROCESS_ID, m.MESSAGE_ID, m.DIRECTION
+FROM EC_PROCESS_MONITORING p
+JOIN EC_MESSAGE_MONITORING m
+  ON p.TRANSACTION_ID = m.TRANSACTION_ID
+ AND p.PROCESS_ID = m.PROCESS_ID;
+
+-- 3) 메시지-바디
+SELECT m.MESSAGE_ID, m.DATA_TYPE, b.MESSAGE_BODY
+FROM EC_MESSAGE_MONITORING m
+LEFT JOIN EC_MESSAGE_BODY b
+  ON m.MESSAGE_ID = b.MESSAGE_ID;</code></pre>
+              <div class="tip-item mt-3">
+                <p class="tip-label">TIP</p>
+                조인 쿼리를 운영에 올리기 전, 먼저 건수 검증 쿼리(COUNT,
+                DISTINCT COUNT)로 키 정합성을 확인하면 중복/누락 이슈를 크게
+                줄일 수 있습니다.
               </div>
             </div>
           </div>
