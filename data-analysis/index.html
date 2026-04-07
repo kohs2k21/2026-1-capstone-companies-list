@@ -172,6 +172,74 @@
         margin-bottom: 8px;
       }
 
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+      .report-table th,
+      .report-table td {
+        border-bottom: 1px solid #eef1f4;
+        padding: 8px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .report-table th {
+        font-size: 0.68rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #7f8c8d;
+        font-weight: 700;
+      }
+      .stat-card {
+        background: #fff;
+        border: 1px solid #e4e8ee;
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .stat-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #7f8c8d;
+        margin-bottom: 4px;
+      }
+      .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2b4c7e;
+      }
+      .schema-btn {
+        border: 1px solid #d7dee8;
+        background: #ffffff;
+        color: #2c3e50;
+        border-radius: 10px;
+        padding: 7px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .schema-btn:hover {
+        border-color: #2b4c7e;
+        color: #2b4c7e;
+      }
+      .schema-btn.active {
+        background: #2b4c7e;
+        color: #ffffff;
+        border-color: #2b4c7e;
+      }
+      .field-chip {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #eef3fa;
+        border: 1px solid #d8e2f1;
+        font-size: 0.68rem;
+        color: #2b4c7e;
+        font-weight: 600;
+        margin: 0 6px 6px 0;
+      }
+
       ::-webkit-scrollbar {
         width: 5px;
       }
@@ -257,6 +325,13 @@
           class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
         >
           <span class="mr-2">🔍</span> Message Body
+        </button>
+        <button
+          onclick="switchTab('jsonreport')"
+          id="nav-jsonreport"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <span class="mr-2">🧾</span> JSON 파싱 보고서
         </button>
       </div>
 
@@ -931,6 +1006,141 @@
             </div>
           </div>
         </div>
+
+        <!-- ─────────────── JSON REPORT TAB ─────────────── -->
+        <div id="tab-jsonreport" class="tab-content">
+          <div class="mb-6">
+            <p
+              class="text-xs font-bold text-accent uppercase tracking-widest mb-1"
+            >
+              Analysis Report
+            </p>
+            <h2 class="text-2xl font-bold text-textmain">
+              MESSAGE_BODY JSON 파싱 결과 보고서
+            </h2>
+            <p class="text-sm text-textmuted mt-1">
+              EC_MESSAGE_BODY의 MESSAGE_BODY를 JSON으로 파싱해 스키마 종류,
+              필드 타입, 예시값을 집계한 결과입니다.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5 mb-5">
+            <div class="col-span-3 stat-card">
+              <p class="stat-label">객체 스키마 종류</p>
+              <p class="stat-value">32개</p>
+            </div>
+            <div class="col-span-3 stat-card">
+              <p class="stat-label">특수 Payload 종류</p>
+              <p class="stat-value">3개</p>
+            </div>
+            <div class="col-span-3 stat-card">
+              <p class="stat-label">총 분리 파일 수</p>
+              <p class="stat-value">35개</p>
+            </div>
+            <div class="col-span-3 stat-card">
+              <p class="stat-label">객체 레코드 수</p>
+              <p class="stat-value">132,977</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5">
+            <div
+              class="col-span-12 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">스키마 선택 (32개)</p>
+              <div
+                id="schemaSelector"
+                class="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1"
+              ></div>
+            </div>
+
+            <div
+              class="col-span-8 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <p class="section-label">선택 스키마 상세</p>
+                  <h3
+                    id="schemaTitle"
+                    class="text-lg font-bold text-textmain leading-tight"
+                  ></h3>
+                  <p id="schemaMeta" class="text-xs text-textmuted mt-1"></p>
+                </div>
+              </div>
+              <div id="schemaKeys" class="mb-3"></div>
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>필드</th>
+                    <th>타입 분포</th>
+                    <th>예시값</th>
+                  </tr>
+                </thead>
+                <tbody id="schemaFieldTable"></tbody>
+              </table>
+            </div>
+
+            <div class="col-span-4 flex flex-col gap-5">
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              >
+                <p class="section-label">선택 스키마 요약</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span id="selectedSchemaCount"></span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span id="selectedSchemaKeyCount"></span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span id="selectedSchemaFirstKey"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              >
+                <p class="section-label">비객체 Payload</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span><strong>string_payloads:</strong> 245건 (base64/해시 문자열 포함)</span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span><strong>null_payloads:</strong> 2건</span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span><strong>non_object_array_payloads:</strong> 17건 (예: [])</span>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              >
+                <p class="section-label">해석 가이드</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">주요 정상 패턴</p>
+                    사용자 프로필 계열 스키마(schema_01/02/05/08)가 대부분을
+                    차지합니다.
+                  </div>
+                  <div class="tip-item">
+                    <p class="tip-label">주의 대상</p>
+                    빈 객체, 단일 키("1"), 타입 혼합(QUANTITY) 및 특수
+                    payload는 스키마 드리프트 후보입니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- /max-w -->
     </main>
@@ -938,6 +1148,7 @@
     <!-- ════════════════════════════ SCRIPTS ════════════════════════════ -->
     <script>
       const chartInstances = {};
+      let currentSchemaIndex = 0;
 
       function switchTab(id) {
         // 모든 탭 비활성화
@@ -1160,6 +1371,92 @@
           );
         }
       }
+
+      function formatNumber(v) {
+        return Number(v || 0).toLocaleString("ko-KR");
+      }
+
+      function renderSchemaButtons() {
+        const container = document.getElementById("schemaSelector");
+        if (!container || !window.jsonSchemaCatalog) return;
+        container.innerHTML = "";
+
+        window.jsonSchemaCatalog.forEach((schema, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "schema-btn" + (idx === currentSchemaIndex ? " active" : "");
+          btn.textContent = `${schema.id}. ${schema.schemaName}`;
+          btn.addEventListener("click", () => {
+            currentSchemaIndex = idx;
+            renderSchemaButtons();
+            renderSchemaDetail();
+          });
+          container.appendChild(btn);
+        });
+      }
+
+      function renderSchemaDetail() {
+        const data = window.jsonSchemaCatalog || [];
+        const schema = data[currentSchemaIndex];
+        if (!schema) return;
+
+        const title = document.getElementById("schemaTitle");
+        const meta = document.getElementById("schemaMeta");
+        const keyWrap = document.getElementById("schemaKeys");
+        const tbody = document.getElementById("schemaFieldTable");
+        const c1 = document.getElementById("selectedSchemaCount");
+        const c2 = document.getElementById("selectedSchemaKeyCount");
+        const c3 = document.getElementById("selectedSchemaFirstKey");
+
+        title.textContent = schema.schemaName;
+        meta.textContent = `파일: ${schema.file}`;
+
+        c1.textContent = `건수: ${formatNumber(schema.count)}건`;
+        c2.textContent = `키 개수: ${schema.keyCount}개`;
+        c3.textContent =
+          schema.keys && schema.keys.length > 0
+            ? `대표 키: ${schema.keys.slice(0, 3).join(", ")}${schema.keys.length > 3 ? " ..." : ""}`
+            : "대표 키: (빈 객체)";
+
+        keyWrap.innerHTML = "";
+        if (schema.keys && schema.keys.length > 0) {
+          schema.keys.forEach((k) => {
+            const chip = document.createElement("span");
+            chip.className = "field-chip";
+            chip.textContent = k;
+            keyWrap.appendChild(chip);
+          });
+        } else {
+          const empty = document.createElement("span");
+          empty.className = "text-xs text-textmuted";
+          empty.textContent = "필드가 없는 빈 객체 스키마입니다.";
+          keyWrap.appendChild(empty);
+        }
+
+        tbody.innerHTML = "";
+        if (!schema.fields || schema.fields.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = "<td colspan='3' class='text-textmuted text-xs'>표시할 필드가 없습니다.</td>";
+          tbody.appendChild(tr);
+          return;
+        }
+
+        schema.fields.forEach((f) => {
+          const tr = document.createElement("tr");
+          const exampleText = (f.examples || []).join(" | ");
+          tr.innerHTML = `
+            <td>${f.name}</td>
+            <td>${f.typeDistribution}</td>
+            <td class="text-xs">${exampleText}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        renderSchemaButtons();
+        renderSchemaDetail();
+      });
     </script>
+    <script src="./json_schema_catalog.js"></script>
   </body>
 </html>
