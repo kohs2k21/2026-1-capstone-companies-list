@@ -96,9 +96,25 @@
         border-bottom: 1px solid #f0f2f5;
         font-size: 0.72rem;
         font-family: "Courier New", monospace;
+        min-width: 0;
       }
       .sql-row:last-child {
         border-bottom: none;
+      }
+      .sql-row > span {
+        min-width: 0;
+      }
+      .sql-row > span:nth-child(2) {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sql-row > span:last-child {
+        max-width: 44%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .sql-badge {
         font-size: 0.6rem;
@@ -239,6 +255,56 @@
         font-weight: 600;
         margin: 0 6px 6px 0;
       }
+      .example-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .example-card {
+        background: #ffffff;
+        border: 1px solid #e4e8ee;
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .example-title {
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #2b4c7e;
+        margin-bottom: 8px;
+      }
+      .value-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 280px;
+      }
+      .value-bar-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .value-bar-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.71rem;
+        color: #34495e;
+      }
+      .value-bar-track {
+        width: 100%;
+        height: 7px;
+        border-radius: 99px;
+        background: #e9eef5;
+        overflow: hidden;
+      }
+      .value-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #2b4c7e, #5a7dad);
+      }
 
       ::-webkit-scrollbar {
         width: 5px;
@@ -292,12 +358,14 @@
         <button
           onclick="switchTab('erd')"
           id="nav-erd"
-          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-semibold transition-colors rounded-r-lg mr-2 bg-primary text-white border-r-4 border-accent"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-semibold transition-colors rounded-r-lg mr-2 bg-primary text-white border-r-4 border-accent mb-4"
         >
           <span class="mr-2">🗂️</span> ER 다이어그램
         </button>
 
-        <p class="px-5 section-label mt-5">Monitoring Logs</p>
+        <div class="h-4"></div>
+
+        <p class="px-5 section-label">Monitoring Logs</p>
         <button
           onclick="switchTab('transaction')"
           id="nav-transaction"
@@ -556,7 +624,7 @@
           <div class="grid grid-cols-12 gap-5">
             <!-- 스키마 -->
             <div
-              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-4 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">SQL Schema</p>
               <div class="space-y-0">
@@ -605,7 +673,7 @@
 
             <!-- 차트 -->
             <div
-              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-8 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">PROCESS_TIME 분포 시뮬레이션</p>
               <p class="text-xs text-textmuted mb-3">
@@ -618,43 +686,375 @@
             </div>
 
             <!-- 확인사항 + TIP -->
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="col-span-12 grid grid-cols-12 gap-4">
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">확인 사항</p>
                 <div class="space-y-2">
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >PROCESS_TIME 분포 확인 — 전체 지연(Latency) 판단
-                      기준</span
+                      >PROCESS_TIME이 평소 구간(대부분의 점)에서 벗어나는지 먼저
+                      확인하세요. 갑자기 튀는 값은 시스템 지연이나 장애 신호일
+                      수 있습니다.</span
                     >
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
-                    <span>STATUS ≠ 'S' 인 모든 케이스를 이상 후보로 간주</span>
+                    <span
+                      >STATUS가 S(성공)가 아닌 건은 우선 점검 대상으로
+                      분류하세요. 실제 장애가 아니어도 재시도/일시 오류가 섞여
+                      있을 수 있어 원인 분리가 중요합니다.</span
+                    >
                   </div>
                 </div>
               </div>
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">전처리 TIP</p>
                 <div class="space-y-2">
                   <div class="tip-item">
                     <p class="tip-label">주기성 학습</p>
-                    START_TIME에서 시간대(0–23시)·요일 특징을 추출해 업무/비업무
-                    시간 패턴을 분리 학습
+                    START_TIME에서 시간대(0–23시)와 요일을 함께 보세요. 평일
+                    업무시간과 야간/주말 패턴이 다르기 때문에, 시간 구간별
+                    기준선을 따로 두면 오탐을 크게 줄일 수 있습니다.
                   </div>
                   <div class="tip-item">
                     <p class="tip-label">로그 스케일링</p>
-                    처리 시간 편차가 크므로 Log Scaling으로 분포를 정규화해 모델
-                    수렴 속도를 향상
+                    처리시간은 긴 꼬리 분포를 가지는 경우가 많습니다. Log
+                    Scaling을 적용하면 극단값 영향이 줄어들어, 모델이 안정적으로
+                    학습되고 비교도 쉬워집니다.
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div
+            class="mt-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+          >
+            <p class="section-label">필드별 자주 등장하는 예시값</p>
+            <p class="text-xs text-textmuted mb-3">
+              전체 트랜잭션 단위에서 고정적으로 반복되는 값 패턴
+            </p>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>필드</th>
+                  <th>의미</th>
+                  <th>자주 등장하는 값</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PROCESS_HUB_ID</td>
+                  <td>처리 허브</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>HUB (기본 처리 허브)</span
+                          ><strong>98.5482%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 98.5482%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>DIRECT (허브 우회 처리)</span
+                          ><strong>1.4515%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4515%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>START_CHANNEL_ID</td>
+                  <td>시작 채널</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>TSC (주 입력 채널)</span
+                          ><strong>95.1464%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 95.1464%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>SOL (대체 시작 채널)</span
+                          ><strong>3.4441%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 3.4441%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>HUB (내부 시작 경로)</span
+                          ><strong>1.4083%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4083%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>END_CHANNEL_ID</td>
+                  <td>종료 채널</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>SOL (주 종료 채널)</span
+                          ><strong>97.7446%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 97.7446%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>HUB (내부 종료 경로)</span
+                          ><strong>1.4742%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4742%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>TSC (역방향 종료)</span><strong>0.7778%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.7778%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>STATUS</td>
+                  <td>최종 상태</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>S (성공)</span><strong>82.2672%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 82.2672%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>F (실패)</span><strong>17.3169%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 17.3169%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>P (처리중)</span><strong>0.3994%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.3994%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>RESPONSE_CODE</td>
+                  <td>응답 코드</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>0000 (정상 처리)</span><strong>82.2672%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 82.2672%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>4801 (업무 오류 계열)</span
+                          ><strong>16.3246%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 16.3246%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>4905 (추가 오류 코드)</span
+                          ><strong>0.7792%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.7792%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>INTERFACE_TYPE</td>
+                  <td>인터페이스 유형</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>NORMAL (일반 인터페이스)</span
+                          ><strong>99.1858%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 99.1858%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>SUB (구독형)</span><strong>0.7481%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.7481%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>PUB (발행형)</span><strong>0.0659%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0659%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>CATEGORY_NAME</td>
+                  <td>카테고리 분류</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span
+                            >DB2DB &gt; 07.성능 테스트용 (주요 카테고리)</span
+                          ><strong>91.4366%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 91.4366%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>NONE (미분류)</span><strong>6.2371%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 6.2371%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>TEST2 &gt; TESTQQQ (테스트 그룹)</span
+                          ><strong>1.3196%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.3196%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>RETRY_COUNT</td>
+                  <td>재시도 횟수</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>0 (재시도 없음)</span><strong>100.0000%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div class="value-bar-fill" style="width: 100%"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -678,7 +1078,7 @@
           <div class="grid grid-cols-12 gap-5">
             <!-- 스키마 -->
             <div
-              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-4 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">SQL Schema</p>
               <div class="space-y-0">
@@ -735,7 +1135,7 @@
 
             <!-- 차트 -->
             <div
-              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-8 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">어댑터 구간별 평균 처리 시간</p>
               <p class="text-xs text-textmuted mb-3">
@@ -748,40 +1148,307 @@
             </div>
 
             <!-- 확인사항 + TIP -->
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="col-span-12 grid grid-cols-12 gap-4">
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">확인 사항</p>
                 <div class="space-y-2">
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >DEPEND_PROCESS_ID 기반 프로세스 간 선후 관계 지연
-                      추적</span
+                      >DEPEND_PROCESS_ID를 따라가며 "어느 단계에서" 지연이
+                      시작됐는지 확인하세요. 선행 단계 지연이 뒤 단계 전체를
+                      밀어낼 수 있습니다.</span
                     >
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >특정 ADAPTER_TYPE에서 반복 발생하는 지연 패턴 식별</span
+                      >같은 ADAPTER_TYPE(DB.READER, DB.WRITER 등)에서 지연이
+                      반복되면 코드 문제가 아니라 인프라/쿼리 병목일 가능성이
+                      큽니다.</span
                     >
                   </div>
                 </div>
               </div>
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">전처리 TIP</p>
                 <div class="space-y-2">
                   <div class="tip-item">
                     <p class="tip-label">그래프 구조화 (DAG)</p>
-                    선후 관계를 DAG로 표현하고, 단계 간 시간을 에지(Edge)
-                    가중치로 활용해 비정상 실행 경로를 탐지
+                    프로세스를 DAG(방향 비순환 그래프)로 보면 흐름이 한눈에
+                    보입니다. 각 단계 소요시간을 간선 가중치로 두면, 병목이
+                    생기는 경로를 빠르게 찾을 수 있습니다.
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div
+            class="mt-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+          >
+            <p class="section-label">필드별 자주 등장하는 예시값</p>
+            <p class="text-xs text-textmuted mb-3">
+              세부 프로세스 단계에서 반복되는 어댑터/채널/상태 패턴
+            </p>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>필드</th>
+                  <th>의미</th>
+                  <th>자주 등장하는 값</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PROCESS_HUB_ID</td>
+                  <td>처리 허브</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>HUB (표준 허브 처리)</span
+                          ><strong>98.5764%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 98.5764%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>DIRECT (직접 처리)</span
+                          ><strong>1.4226%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4226%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>DEPEND_PROCESS_ID</td>
+                  <td>선행 의존 프로세스</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>NONE (첫 단계)</span><strong>50.6738%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 50.6738%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>IF_DB2DB_906_PR001 (선행 프로세스 예)</span
+                          ><strong>1.4418%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4418%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>IF_DB2DB_905_PR001 (선행 프로세스 예)</span
+                          ><strong>1.4295%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4295%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>ADAPTER_TYPE</td>
+                  <td>어댑터 종류</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>DB.READER (데이터 조회)</span
+                          ><strong>47.2093%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 47.2093%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>DB.WRITER (데이터 반영)</span
+                          ><strong>46.8631%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 46.8631%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>GATEWAY.INVOKER (게이트웨이 호출)</span
+                          ><strong>1.6490%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.649%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>CHANNEL_ID</td>
+                  <td>처리 채널</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>SOL (출력 채널)</span><strong>50.2239%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 50.2239%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>TSC (입력 채널)</span><strong>48.6683%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 48.6683%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>HUB (내부 채널)</span><strong>1.1060%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.106%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>STATUS</td>
+                  <td>단계 상태</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>S (성공)</span><strong>83.6226%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 83.6226%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>N (미실행/대기)</span><strong>16.2765%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 16.2765%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>F (실패)</span><strong>0.0248%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0248%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>RESPONSE_CODE</td>
+                  <td>응답 코드</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>0000 (정상 처리)</span><strong>83.6489%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 83.6489%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>공백 (응답 코드 없음)</span
+                          ><strong>16.3145%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 16.3145%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>4999 (기타 오류)</span><strong>0.0125%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0125%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -804,7 +1471,7 @@
           <div class="grid grid-cols-12 gap-5">
             <!-- 스키마 -->
             <div
-              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-4 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">SQL Schema</p>
               <div class="space-y-0">
@@ -851,7 +1518,7 @@
 
             <!-- 차트 -->
             <div
-              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-8 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">DATA_SIZE 분포 — 이상 탐지</p>
               <p class="text-xs text-textmuted mb-3">
@@ -864,41 +1531,289 @@
             </div>
 
             <!-- 확인사항 + TIP -->
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="col-span-12 grid grid-cols-12 gap-4">
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">확인 사항</p>
                 <div class="space-y-2">
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >RESPONSE_CODE = '0000'(성공) 임에도 DATA_SIZE = 0 인
-                      케이스 탐지</span
+                      >RESPONSE_CODE가 0000(성공)인데 DATA_SIZE가 0이면, 실제
+                      데이터가 비어 전송됐을 가능성을 의심하세요. "성공처럼
+                      보이는 실패"를 잡는 포인트입니다.</span
                     >
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >평소보다 비정상적으로 큰 DATA_SIZE — 과부하 요청 여부
-                      확인</span
+                      >평소보다 매우 큰 DATA_SIZE는 대량 요청/중복 전송/압축
+                      실패 등과 연결될 수 있습니다. 급증 구간의 호출 주체를 함께
+                      확인하세요.</span
                     >
                   </div>
                 </div>
               </div>
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">전처리 TIP</p>
                 <div class="space-y-2">
                   <div class="tip-item">
                     <p class="tip-label">Z-Score 활용</p>
-                    DATA_SIZE의 평균·표준편차로 3-Sigma 범위를 산출해 데이터
-                    유실 및 과부하 요청을 피처링
+                    DATA_SIZE 평균과 표준편차로 Z-Score를 계산하면, 정상 범위를
+                    벗어난 메시지를 자동으로 표시할 수 있습니다. 운영에서는
+                    임계값(예: 3.0)을 서비스 특성에 맞게 조정하세요.
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div
+            class="mt-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+          >
+            <p class="section-label">필드별 자주 등장하는 예시값</p>
+            <p class="text-xs text-textmuted mb-3">
+              메시지 통신 단위에서 확인되는 방향/타입/에러 코드 패턴
+            </p>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>필드</th>
+                  <th>의미</th>
+                  <th>자주 등장하는 값</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DIRECTION</td>
+                  <td>메시지 흐름 방향</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>OUT (송신)</span><strong>61.4159%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 61.4159%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>IN (수신)</span><strong>34.4442%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 34.4442%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>공백 (미기록)</span><strong>4.1399%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 4.1399%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>DATA_TYPE</td>
+                  <td>페이로드 형태</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>LIST (배열형 데이터)</span
+                          ><strong>61.0907%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 61.0907%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>MAP (객체형 데이터)</span
+                          ><strong>33.2816%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 33.2816%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>FILE (파일형 데이터)</span
+                          ><strong>4.1393%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 4.1393%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>BYTE (바이너리 데이터)</span
+                          ><strong>1.4546%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 1.4546%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>STATUS</td>
+                  <td>메시지 처리 결과</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>S (성공)</span><strong>99.9712%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 99.9712%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>F (실패)</span><strong>0.0282%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0282%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>RESPONSE_CODE</td>
+                  <td>응답 코드</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>공백 (응답 코드 없음)</span
+                          ><strong>95.8325%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 95.8325%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>0000 (정상 처리)</span><strong>4.1315%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 4.1315%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>4104 (DB.DELETE 오류)</span
+                          ><strong>0.0085%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0085%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>9999 (수신 상태 없음)</span
+                          ><strong>0.0018%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0018%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>MESSAGE_INDEX</td>
+                  <td>메시지 순번</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>1 (첫 메시지)</span><strong>94.3349%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 94.3349%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>공백 (순번 미기록)</span
+                          ><strong>4.1399%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 4.1399%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>2 (두 번째 메시지)</span
+                          ><strong>0.0652%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0652%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -919,7 +1834,7 @@
           <div class="grid grid-cols-12 gap-5">
             <!-- 스키마 -->
             <div
-              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+              class="col-span-4 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
             >
               <p class="section-label">SQL Schema</p>
               <div class="space-y-0">
@@ -950,7 +1865,7 @@
 
             <!-- 차트 -->
             <div
-              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex flex-col items-center"
+              class="col-span-8 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex flex-col items-center"
             >
               <p class="section-label w-full">AutoEncoder 재구성 손실 비율</p>
               <p class="text-xs text-textmuted mb-3 w-full">
@@ -965,45 +1880,168 @@
             </div>
 
             <!-- 확인사항 + TIP -->
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="col-span-12 grid grid-cols-12 gap-4">
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">확인 사항</p>
                 <div class="space-y-2">
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >JSON/XML 스키마 키(Key) 구성 변화 탐지 — 키 추가·누락 시
-                      이상</span
+                      >어제까지 있던 키가 오늘 빠지거나, 갑자기 새 키가 추가되면
+                      스키마 변경 가능성이 큽니다. 배포 이력과 함께 확인하면
+                      원인 파악이 빨라집니다.</span
                     >
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
                     <span
-                      >비즈니스 로직 불일치 및 예상 외 필드 값 범위 이탈</span
+                      >필드 값이 기대 범위를 벗어나는지 확인하세요. 예를 들어
+                      음수 수량, 비정상 코드, null 급증은 비즈니스 오류 신호일
+                      수 있습니다.</span
                     >
                   </div>
                 </div>
               </div>
               <div
-                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+                class="col-span-6 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
               >
                 <p class="section-label">전처리 TIP</p>
                 <div class="space-y-2">
                   <div class="tip-item">
                     <p class="tip-label">Flattening</p>
-                    중첩 JSON을 Key-Value 평면 테이블로 변환 후 One-Hot·정규화
-                    처리
+                    중첩 JSON을 먼저 평면 테이블(컬럼형)로 펼치면 분석이 매우
+                    쉬워집니다. 그 다음 범주형은 인코딩하고 수치형은 정규화해
+                    모델 입력 품질을 맞추세요.
                   </div>
                   <div class="tip-item">
                     <p class="tip-label">AutoEncoder</p>
-                    평탄화 벡터를 입력해 재구성 손실이 높은 패킷을 내용 결함
-                    이상으로 분류
+                    정상 데이터로 AutoEncoder를 학습하면, 낯선 패턴에서 재구성
+                    오차가 커집니다. 이 오차를 기준으로 "내용 이상"을 점수화해
+                    우선순위 점검 목록을 만들 수 있습니다.
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div
+            class="mt-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+          >
+            <p class="section-label">필드별 자주 등장하는 예시값</p>
+            <p class="text-xs text-textmuted mb-3">
+              페이로드 전문에서 확인되는 null 패턴과 JSON 본문 형태
+            </p>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>필드</th>
+                  <th>의미</th>
+                  <th>자주 등장하는 값</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>MESSAGE_IN</td>
+                  <td>수신 원문</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>[NULL] (원문 없음)</span
+                          ><strong>99.8290%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 99.829%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>{} (빈 객체)</span><strong>0.0488%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0488%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span
+                            >{"EC_DATA":[{"$RESULT":"SUCCESS",...}]} (성공 응답
+                            구조)</span
+                          ><strong>0.0244%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0244%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>MESSAGE_OUT</td>
+                  <td>송신 원문</td>
+                  <td>
+                    <div class="value-bars">
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>[NULL] (원문 없음)</span
+                          ><strong>99.8290%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 99.829%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span
+                            >{"EC_DATA":[{"$RESULT":"SUCCESS",...}]} (성공 응답
+                            구조)</span
+                          ><strong>0.0305%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0305%"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="value-bar-item">
+                        <div class="value-bar-meta">
+                          <span>{} (빈 객체)</span><strong>0.0244%</strong>
+                        </div>
+                        <div class="value-bar-track">
+                          <div
+                            class="value-bar-fill"
+                            style="width: 0.0244%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>MESSAGE_BODY</td>
+                  <td>JSON 문자열 Payload</td>
+                  <td>
+                    [{"USER_NO":195,"COUNTRY":"Kazakhstan",...,"GENDER":"Female
+                    ..."}]
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1019,8 +2057,8 @@
               MESSAGE_BODY JSON 파싱 결과 보고서
             </h2>
             <p class="text-sm text-textmuted mt-1">
-              EC_MESSAGE_BODY의 MESSAGE_BODY를 JSON으로 파싱해 스키마 종류,
-              필드 타입, 예시값을 집계한 결과입니다.
+              EC_MESSAGE_BODY의 MESSAGE_BODY를 JSON으로 파싱해 스키마 종류, 필드
+              타입, 예시값을 집계한 결과입니다.
             </p>
           </div>
 
@@ -1108,7 +2146,10 @@
                 <div class="space-y-2">
                   <div class="check-item">
                     <span class="check-dot"></span>
-                    <span><strong>string_payloads:</strong> 245건 (base64/해시 문자열 포함)</span>
+                    <span
+                      ><strong>string_payloads:</strong> 245건 (base64/해시
+                      문자열 포함)</span
+                    >
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
@@ -1116,7 +2157,10 @@
                   </div>
                   <div class="check-item">
                     <span class="check-dot"></span>
-                    <span><strong>non_object_array_payloads:</strong> 17건 (예: [])</span>
+                    <span
+                      ><strong>non_object_array_payloads:</strong> 17건 (예:
+                      [])</span
+                    >
                   </div>
                 </div>
               </div>
@@ -1133,8 +2177,8 @@
                   </div>
                   <div class="tip-item">
                     <p class="tip-label">주의 대상</p>
-                    빈 객체, 단일 키("1"), 타입 혼합(QUANTITY) 및 특수
-                    payload는 스키마 드리프트 후보입니다.
+                    빈 객체, 단일 키("1"), 타입 혼합(QUANTITY) 및 특수 payload는
+                    스키마 드리프트 후보입니다.
                   </div>
                 </div>
               </div>
@@ -1383,7 +2427,8 @@
 
         window.jsonSchemaCatalog.forEach((schema, idx) => {
           const btn = document.createElement("button");
-          btn.className = "schema-btn" + (idx === currentSchemaIndex ? " active" : "");
+          btn.className =
+            "schema-btn" + (idx === currentSchemaIndex ? " active" : "");
           btn.textContent = `${schema.id}. ${schema.schemaName}`;
           btn.addEventListener("click", () => {
             currentSchemaIndex = idx;
@@ -1435,7 +2480,8 @@
         tbody.innerHTML = "";
         if (!schema.fields || schema.fields.length === 0) {
           const tr = document.createElement("tr");
-          tr.innerHTML = "<td colspan='3' class='text-textmuted text-xs'>표시할 필드가 없습니다.</td>";
+          tr.innerHTML =
+            "<td colspan='3' class='text-textmuted text-xs'>표시할 필드가 없습니다.</td>";
           tbody.appendChild(tr);
           return;
         }
