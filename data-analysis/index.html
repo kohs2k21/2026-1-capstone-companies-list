@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 이상 탐지 데이터 분석 보고서</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Pretendard", "sans-serif"] },
+            colors: {
+              warmbg: "#F7F8FA",
+              cardbg: "#FFFFFF",
+              primary: "#2B4C7E",
+              accent: "#D97757",
+              textmain: "#2C3E50",
+              textmuted: "#7F8C8D",
+              bordercolor: "#E4E8EE",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #f7f8fa;
+        color: #2c3e50;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      /* ── 탭 전환 애니메이션 ── */
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeUp 0.35s ease;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── 차트 컨테이너 ── */
+      .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 280px;
+      }
+
+      /* ── ERD 연결선 ── */
+      .erd-connector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        margin: 0 auto;
+      }
+      .erd-line {
+        width: 2px;
+        height: 28px;
+        background: linear-gradient(to bottom, #2b4c7e55, #7f8c8d55);
+      }
+      .erd-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: #7f8c8d;
+        background: #fff;
+        border: 1px solid #e4e8ee;
+        padding: 1px 8px;
+        border-radius: 99px;
+      }
+
+      /* ── SQL 필드 행 ── */
+      .sql-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f2f5;
+        font-size: 0.72rem;
+        font-family: "Courier New", monospace;
+      }
+      .sql-row:last-child {
+        border-bottom: none;
+      }
+      .sql-badge {
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 4px;
+        min-width: 32px;
+        text-align: center;
+      }
+      .badge-pk {
+        background: #ebf2ff;
+        color: #2b4c7e;
+      }
+      .badge-fk {
+        background: #fef0e8;
+        color: #d97757;
+      }
+      .badge-info {
+        background: #f0f2f5;
+        color: #7f8c8d;
+      }
+
+      /* ── 확인사항 항목 ── */
+      .check-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 12px;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e4e8ee;
+        font-size: 0.82rem;
+        color: #2c3e50;
+        line-height: 1.55;
+      }
+      .check-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d97757;
+        margin-top: 5px;
+        flex-shrink: 0;
+      }
+
+      /* ── TIP 항목 ── */
+      .tip-item {
+        padding: 12px 14px;
+        background: #ebf2ff;
+        border-left: 3px solid #2b4c7e;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.82rem;
+        color: #2c3e50;
+        line-height: 1.55;
+      }
+      .tip-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #2b4c7e;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 3px;
+      }
+
+      /* ── 섹션 구분자 ── */
+      .section-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #7f8c8d;
+        margin-bottom: 8px;
+      }
+
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      .home-fab {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 60;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #2b4c7e;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border: 1px solid #e4e8ee;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+      }
+      .home-fab:hover {
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body class="flex h-screen antialiased">
+    <a href="../" class="home-fab" aria-label="상위 허브로 돌아가기">← 홈</a>
+    <!-- ════════════════════════════ SIDEBAR ════════════════════════════ -->
+    <nav
+      class="w-60 bg-cardbg border-r border-bordercolor flex flex-col h-full shadow-sm shrink-0"
+    >
+      <div class="p-5 border-b border-bordercolor">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xl">📊</span>
+          <h1 class="text-base font-bold text-primary">AI Lab</h1>
+        </div>
+        <p class="text-xs text-textmuted leading-relaxed">
+          대규모 트랜잭션 로그 기반<br />AI 이상 탐지 모델 연구
+        </p>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-4 space-y-1">
+        <p class="px-5 section-label">Architecture</p>
+        <button
+          onclick="switchTab('erd')"
+          id="nav-erd"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-semibold transition-colors rounded-r-lg mr-2 bg-primary text-white border-r-4 border-accent"
+        >
+          <span class="mr-2">🗂️</span> ER 다이어그램
+        </button>
+
+        <p class="px-5 section-label mt-5">Monitoring Logs</p>
+        <button
+          onclick="switchTab('transaction')"
+          id="nav-transaction"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <span class="mr-2">⏱️</span> Transaction
+        </button>
+        <button
+          onclick="switchTab('process')"
+          id="nav-process"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <span class="mr-2">⚙️</span> Process
+        </button>
+        <button
+          onclick="switchTab('message')"
+          id="nav-message"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <span class="mr-2">📦</span> Message
+        </button>
+        <button
+          onclick="switchTab('body')"
+          id="nav-body"
+          class="nav-btn w-full text-left px-5 py-2.5 text-sm font-medium text-textmuted hover:bg-warmbg hover:text-primary transition-colors"
+        >
+          <span class="mr-2">🔍</span> Message Body
+        </button>
+      </div>
+
+      <div
+        class="p-4 bg-warmbg border-t border-bordercolor text-xs text-center text-textmuted"
+      >
+        Inzent eCross Data Analysis
+      </div>
+    </nav>
+
+    <!-- ════════════════════════════ MAIN ════════════════════════════ -->
+    <main class="flex-1 h-full overflow-y-auto bg-warmbg">
+      <div class="max-w-5xl mx-auto p-8 space-y-0">
+        <!-- ─────────────── ERD TAB ─────────────── -->
+        <div id="tab-erd" class="tab-content active">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-textmain">
+              데이터 엔티티 관계도 (ERD)
+            </h2>
+            <p class="text-sm text-textmuted mt-1">
+              eCross 로그 시스템의 계층적 구조와 논리적 인과 관계
+            </p>
+          </div>
+
+          <div
+            class="bg-cardbg rounded-2xl border border-bordercolor p-10 flex flex-col items-center gap-0 shadow-sm"
+          >
+            <!-- 설명 배너 -->
+            <div
+              class="w-full max-w-xl mb-8 p-4 bg-blue-50 border-l-4 border-primary rounded-r-lg text-sm text-textmain leading-relaxed"
+            >
+              <strong>설명력(XAI) 확보의 핵심:</strong> 하위
+              단계(Message/Body)의 이상 징후가 상위 단계(Transaction)의 실패로
+              전이되는 인과 관계를 계층 구조로 추적합니다.
+            </div>
+
+            <!-- Transaction -->
+            <div
+              class="w-72 bg-primary text-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow"
+            >
+              <p
+                class="text-xs font-bold opacity-60 uppercase tracking-wider mb-1"
+              >
+                Layer 1
+              </p>
+              <h3
+                class="text-base font-bold mb-3 pb-2 border-b border-blue-400"
+              >
+                EC_TRANSACTION
+              </h3>
+              <div class="space-y-1">
+                <div class="sql-row" style="border-color: #4a6fa5">
+                  <span
+                    class="sql-badge"
+                    style="background: #3a5f8a; color: #a8c4f0"
+                    >PK</span
+                  >
+                  <span class="text-xs opacity-90">TRANSACTION_ID</span>
+                </div>
+                <div class="sql-row" style="border-color: #4a6fa5">
+                  <span
+                    class="sql-badge"
+                    style="background: #3a5f8a; color: #a8c4f0"
+                    >—</span
+                  >
+                  <span class="text-xs opacity-75">STATUS, PROCESS_TIME</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="erd-connector my-1">
+              <div class="erd-line"></div>
+              <span class="erd-badge">1 : N</span>
+              <div class="erd-line"></div>
+            </div>
+
+            <!-- Process -->
+            <div
+              class="w-72 bg-[#34495E] text-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow"
+            >
+              <p
+                class="text-xs font-bold opacity-60 uppercase tracking-wider mb-1"
+              >
+                Layer 2
+              </p>
+              <h3
+                class="text-base font-bold mb-3 pb-2 border-b border-gray-500"
+              >
+                EC_PROCESS
+              </h3>
+              <div class="space-y-1">
+                <div class="sql-row" style="border-color: #4a5f70">
+                  <span
+                    class="sql-badge"
+                    style="background: #2c3e50; color: #95a5a6"
+                    >PK</span
+                  >
+                  <span class="text-xs opacity-90">PROCESS_ID</span>
+                </div>
+                <div class="sql-row" style="border-color: #4a5f70">
+                  <span
+                    class="sql-badge"
+                    style="background: #c0392b30; color: #e8a09a"
+                    >FK</span
+                  >
+                  <span class="text-xs opacity-90">TRANSACTION_ID</span>
+                </div>
+                <div class="sql-row" style="border-color: #4a5f70">
+                  <span
+                    class="sql-badge"
+                    style="background: #2c3e50; color: #95a5a6"
+                    >—</span
+                  >
+                  <span class="text-xs opacity-75"
+                    >ADAPTER_TYPE, DEPEND_PROCESS_ID</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="erd-connector my-1">
+              <div class="erd-line"></div>
+              <span class="erd-badge">1 : N</span>
+              <div class="erd-line"></div>
+            </div>
+
+            <!-- Message -->
+            <div
+              class="w-72 bg-[#7F8C8D] text-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow"
+            >
+              <p
+                class="text-xs font-bold opacity-60 uppercase tracking-wider mb-1"
+              >
+                Layer 3
+              </p>
+              <h3
+                class="text-base font-bold mb-3 pb-2 border-b border-gray-400"
+              >
+                EC_MESSAGE
+              </h3>
+              <div class="space-y-1">
+                <div class="sql-row" style="border-color: #95a5a6">
+                  <span
+                    class="sql-badge"
+                    style="background: #6c7a7b; color: #dde"
+                    >PK</span
+                  >
+                  <span class="text-xs opacity-90">MESSAGE_ID</span>
+                </div>
+                <div class="sql-row" style="border-color: #95a5a6">
+                  <span
+                    class="sql-badge"
+                    style="background: #c0392b30; color: #e8a09a"
+                    >FK</span
+                  >
+                  <span class="text-xs opacity-90">PROCESS_ID</span>
+                </div>
+                <div class="sql-row" style="border-color: #95a5a6">
+                  <span
+                    class="sql-badge"
+                    style="background: #6c7a7b; color: #dde"
+                    >—</span
+                  >
+                  <span class="text-xs opacity-75">DIRECTION, DATA_SIZE</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="erd-connector my-1">
+              <div class="erd-line"></div>
+              <span class="erd-badge">1 : 1</span>
+              <div class="erd-line"></div>
+            </div>
+
+            <!-- Body -->
+            <div
+              class="w-72 bg-[#EAECEE] text-gray-700 rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow border border-gray-300"
+            >
+              <p
+                class="text-xs font-bold opacity-50 uppercase tracking-wider mb-1"
+              >
+                Layer 4
+              </p>
+              <h3
+                class="text-base font-bold mb-3 pb-2 border-b border-gray-300"
+              >
+                EC_MESSAGE_BODY
+              </h3>
+              <div class="space-y-1">
+                <div class="sql-row">
+                  <span class="sql-badge badge-pk">PK/FK</span>
+                  <span class="text-xs">MESSAGE_ID</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span>
+                  <span class="text-xs opacity-75"
+                    >MESSAGE_IN / OUT / BODY (CLOB)</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────── TRANSACTION TAB ─────────────── -->
+        <div id="tab-transaction" class="tab-content">
+          <div class="mb-6">
+            <p
+              class="text-xs font-bold text-accent uppercase tracking-widest mb-1"
+            >
+              Layer 1
+            </p>
+            <h2 class="text-2xl font-bold text-textmain">
+              EC_TRANSACTION_MONITORING
+            </h2>
+            <p class="text-sm text-textmuted mt-1">
+              비즈니스 트랜잭션의 전체 수명 주기를 관리하는 최상위 마스터 데이터
+            </p>
+          </div>
+
+          <!-- 3단 그리드: 스키마 | 차트 | 확인+TIP -->
+          <div class="grid grid-cols-12 gap-5">
+            <!-- 스키마 -->
+            <div
+              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">SQL Schema</p>
+              <div class="space-y-0">
+                <div class="sql-row">
+                  <span class="sql-badge badge-pk">PK</span
+                  ><span>TRANSACTION_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(80)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>INTERFACE_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(30)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span><span>STATUS</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(10)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>PROCESS_TIME</span
+                  ><span class="ml-auto text-gray-400 text-xs">NUMBER</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>START_TIME</span
+                  ><span class="ml-auto text-gray-400 text-xs">TIMESTAMP</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>END_TIME</span
+                  ><span class="ml-auto text-gray-400 text-xs">TIMESTAMP</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>RETRY_COUNT</span
+                  ><span class="ml-auto text-gray-400 text-xs">NUMBER</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 차트 -->
+            <div
+              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">PROCESS_TIME 분포 시뮬레이션</p>
+              <p class="text-xs text-textmuted mb-3">
+                시간대별 소요시간(ms) — 이상치는
+                <span style="color: #d97757">●</span> 빨간 점
+              </p>
+              <div class="chart-wrap">
+                <canvas id="txChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 확인사항 + TIP -->
+            <div class="col-span-4 flex flex-col gap-4">
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">확인 사항</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >PROCESS_TIME 분포 확인 — 전체 지연(Latency) 판단
+                      기준</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span>STATUS ≠ 'S' 인 모든 케이스를 이상 후보로 간주</span>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">전처리 TIP</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">주기성 학습</p>
+                    START_TIME에서 시간대(0–23시)·요일 특징을 추출해 업무/비업무
+                    시간 패턴을 분리 학습
+                  </div>
+                  <div class="tip-item">
+                    <p class="tip-label">로그 스케일링</p>
+                    처리 시간 편차가 크므로 Log Scaling으로 분포를 정규화해 모델
+                    수렴 속도를 향상
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────── PROCESS TAB ─────────────── -->
+        <div id="tab-process" class="tab-content">
+          <div class="mb-6">
+            <p
+              class="text-xs font-bold text-accent uppercase tracking-widest mb-1"
+            >
+              Layer 2
+            </p>
+            <h2 class="text-2xl font-bold text-textmain">
+              EC_PROCESS_MONITORING
+            </h2>
+            <p class="text-sm text-textmuted mt-1">
+              트랜잭션 내부의 세부 작업 단위(어댑터 실행 등)를 기록하는
+              워크플로우 데이터
+            </p>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5">
+            <!-- 스키마 -->
+            <div
+              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">SQL Schema</p>
+              <div class="space-y-0">
+                <div class="sql-row">
+                  <span class="sql-badge badge-pk">PK</span
+                  ><span>PROCESS_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(36)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-fk">FK</span
+                  ><span>TRANSACTION_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(80)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>DEPEND_PROCESS_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(36)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>ADAPTER_TYPE</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(30)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>SUCCESS_COUNT</span
+                  ><span class="ml-auto text-gray-400 text-xs">NUMBER</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>ERROR_COUNT</span
+                  ><span class="ml-auto text-gray-400 text-xs">NUMBER</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>START_TIME</span
+                  ><span class="ml-auto text-gray-400 text-xs">TIMESTAMP</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>END_TIME</span
+                  ><span class="ml-auto text-gray-400 text-xs">TIMESTAMP</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 차트 -->
+            <div
+              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">어댑터 구간별 평균 처리 시간</p>
+              <p class="text-xs text-textmuted mb-3">
+                병목 구간은 <span style="color: #d97757">■</span> 주황색으로
+                강조
+              </p>
+              <div class="chart-wrap">
+                <canvas id="processChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 확인사항 + TIP -->
+            <div class="col-span-4 flex flex-col gap-4">
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">확인 사항</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >DEPEND_PROCESS_ID 기반 프로세스 간 선후 관계 지연
+                      추적</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >특정 ADAPTER_TYPE에서 반복 발생하는 지연 패턴 식별</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">전처리 TIP</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">그래프 구조화 (DAG)</p>
+                    선후 관계를 DAG로 표현하고, 단계 간 시간을 에지(Edge)
+                    가중치로 활용해 비정상 실행 경로를 탐지
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────── MESSAGE TAB ─────────────── -->
+        <div id="tab-message" class="tab-content">
+          <div class="mb-6">
+            <p
+              class="text-xs font-bold text-accent uppercase tracking-widest mb-1"
+            >
+              Layer 3
+            </p>
+            <h2 class="text-2xl font-bold text-textmain">
+              EC_MESSAGE_MONITORING
+            </h2>
+            <p class="text-sm text-textmuted mt-1">
+              프로세스 수행 시 발생하는 실제 데이터(메시지)의 물리적 흐름 기록
+            </p>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5">
+            <!-- 스키마 -->
+            <div
+              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">SQL Schema</p>
+              <div class="space-y-0">
+                <div class="sql-row">
+                  <span class="sql-badge badge-pk">PK</span
+                  ><span>MESSAGE_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(36)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-fk">FK</span
+                  ><span>PROCESS_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(36)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>DIRECTION</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(3)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>DATA_SIZE</span
+                  ><span class="ml-auto text-gray-400 text-xs">NUMBER</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>RESPONSE_CODE</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(10)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>PROCESS_DT</span
+                  ><span class="ml-auto text-gray-400 text-xs">TIMESTAMP</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 차트 -->
+            <div
+              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">DATA_SIZE 분포 — 이상 탐지</p>
+              <p class="text-xs text-textmuted mb-3">
+                3-Sigma 범위 초과 데이터는
+                <span style="color: #d97757">●</span> 이상 후보
+              </p>
+              <div class="chart-wrap">
+                <canvas id="messageChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 확인사항 + TIP -->
+            <div class="col-span-4 flex flex-col gap-4">
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">확인 사항</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >RESPONSE_CODE = '0000'(성공) 임에도 DATA_SIZE = 0 인
+                      케이스 탐지</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >평소보다 비정상적으로 큰 DATA_SIZE — 과부하 요청 여부
+                      확인</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">전처리 TIP</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">Z-Score 활용</p>
+                    DATA_SIZE의 평균·표준편차로 3-Sigma 범위를 산출해 데이터
+                    유실 및 과부하 요청을 피처링
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────── BODY TAB ─────────────── -->
+        <div id="tab-body" class="tab-content">
+          <div class="mb-6">
+            <p
+              class="text-xs font-bold text-accent uppercase tracking-widest mb-1"
+            >
+              Layer 4
+            </p>
+            <h2 class="text-2xl font-bold text-textmain">EC_MESSAGE_BODY</h2>
+            <p class="text-sm text-textmuted mt-1">
+              실제 송수신된 비정형 데이터 전문(Payload)을 보관하는 최종 단계
+            </p>
+          </div>
+
+          <div class="grid grid-cols-12 gap-5">
+            <!-- 스키마 -->
+            <div
+              class="col-span-3 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm"
+            >
+              <p class="section-label">SQL Schema</p>
+              <div class="space-y-0">
+                <div class="sql-row">
+                  <span class="sql-badge badge-pk">PK/FK</span
+                  ><span>MESSAGE_ID</span
+                  ><span class="ml-auto text-gray-400 text-xs"
+                    >VARCHAR2(36)</span
+                  >
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>MESSAGE_IN</span
+                  ><span class="ml-auto text-gray-400 text-xs">CLOB</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>MESSAGE_OUT</span
+                  ><span class="ml-auto text-gray-400 text-xs">CLOB</span>
+                </div>
+                <div class="sql-row">
+                  <span class="sql-badge badge-info">—</span
+                  ><span>MESSAGE_BODY</span
+                  ><span class="ml-auto text-gray-400 text-xs">CLOB</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 차트 -->
+            <div
+              class="col-span-5 bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex flex-col items-center"
+            >
+              <p class="section-label w-full">AutoEncoder 재구성 손실 비율</p>
+              <p class="text-xs text-textmuted mb-3 w-full">
+                Reconstruction Loss 기준 정상/이상 분류
+              </p>
+              <div
+                class="chart-wrap flex items-center justify-center"
+                style="height: 240px; max-width: 300px; margin: 0 auto"
+              >
+                <canvas id="bodyChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 확인사항 + TIP -->
+            <div class="col-span-4 flex flex-col gap-4">
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">확인 사항</p>
+                <div class="space-y-2">
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >JSON/XML 스키마 키(Key) 구성 변화 탐지 — 키 추가·누락 시
+                      이상</span
+                    >
+                  </div>
+                  <div class="check-item">
+                    <span class="check-dot"></span>
+                    <span
+                      >비즈니스 로직 불일치 및 예상 외 필드 값 범위 이탈</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-cardbg rounded-xl border border-bordercolor p-5 shadow-sm flex-1"
+              >
+                <p class="section-label">전처리 TIP</p>
+                <div class="space-y-2">
+                  <div class="tip-item">
+                    <p class="tip-label">Flattening</p>
+                    중첩 JSON을 Key-Value 평면 테이블로 변환 후 One-Hot·정규화
+                    처리
+                  </div>
+                  <div class="tip-item">
+                    <p class="tip-label">AutoEncoder</p>
+                    평탄화 벡터를 입력해 재구성 손실이 높은 패킷을 내용 결함
+                    이상으로 분류
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /max-w -->
+    </main>
+
+    <!-- ════════════════════════════ SCRIPTS ════════════════════════════ -->
+    <script>
+      const chartInstances = {};
+
+      function switchTab(id) {
+        // 모든 탭 비활성화
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document.querySelectorAll(".nav-btn").forEach((el) => {
+          el.classList.remove(
+            "bg-primary",
+            "text-white",
+            "border-r-4",
+            "border-accent",
+            "font-semibold",
+          );
+          el.classList.add(
+            "text-textmuted",
+            "hover:bg-warmbg",
+            "hover:text-primary",
+            "font-medium",
+          );
+        });
+
+        // 선택 탭 활성화
+        document.getElementById("tab-" + id).classList.add("active");
+        const btn = document.getElementById("nav-" + id);
+        if (btn) {
+          btn.classList.remove(
+            "text-textmuted",
+            "hover:bg-warmbg",
+            "hover:text-primary",
+            "font-medium",
+          );
+          btn.classList.add(
+            "bg-primary",
+            "text-white",
+            "border-r-4",
+            "border-accent",
+            "font-semibold",
+          );
+        }
+
+        renderChart(id);
+      }
+
+      function renderChart(id) {
+        Chart.defaults.font.family = "'Pretendard', sans-serif";
+        Chart.defaults.color = "#7F8C8D";
+
+        // ── Transaction: 시간대별 처리시간 꺾은선 ──
+        if (id === "transaction" && !chartInstances.tx) {
+          const labels = Array.from(
+            { length: 24 },
+            (_, i) => `${String(i).padStart(2, "0")}:00`,
+          );
+          let data = labels.map(() => Math.round(80 + Math.random() * 120));
+          data[3] = 2400; // 새벽 이상치
+          data[14] = 1800; // 오후 이상치
+
+          chartInstances.tx = new Chart(document.getElementById("txChart"), {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "처리시간 (ms)",
+                  data,
+                  borderColor: "#2B4C7E",
+                  backgroundColor: "rgba(43,76,126,0.08)",
+                  borderWidth: 2,
+                  pointBackgroundColor: data.map((v) =>
+                    v > 500 ? "#D97757" : "#2B4C7E",
+                  ),
+                  pointRadius: data.map((v) => (v > 500 ? 7 : 3)),
+                  fill: true,
+                  tension: 0.35,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  type: "logarithmic",
+                  grid: { color: "#F0F2F5" },
+                  ticks: { font: { size: 10 } },
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { size: 10 }, maxRotation: 0 },
+                },
+              },
+              plugins: { legend: { display: false } },
+            },
+          });
+        }
+
+        // ── Process: 어댑터별 평균 처리시간 막대 ──
+        else if (id === "process" && !chartInstances.process) {
+          const vals = [125, 310, 88, 920, 195];
+          chartInstances.process = new Chart(
+            document.getElementById("processChart"),
+            {
+              type: "bar",
+              data: {
+                labels: [
+                  "GATEWAY",
+                  "DB.READER",
+                  "VALIDATOR",
+                  "DB.WRITER",
+                  "EXTERNAL",
+                ],
+                datasets: [
+                  {
+                    label: "평균 처리시간 (ms)",
+                    data: vals,
+                    backgroundColor: vals.map((v) =>
+                      v > 500 ? "#D97757" : "#2B4C7E",
+                    ),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    grid: { color: "#F0F2F5" },
+                    ticks: { font: { size: 10 } },
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } },
+                  },
+                },
+                plugins: { legend: { display: false } },
+              },
+            },
+          );
+        }
+
+        // ── Message: DATA_SIZE 산점도 ──
+        else if (id === "message" && !chartInstances.message) {
+          const pts = Array.from({ length: 60 }, (_, i) => ({
+            x: i,
+            y: Math.round(1800 + Math.random() * 800),
+          }));
+          // 3-Sigma 초과 이상치 삽입
+          pts[12] = { x: 12, y: 14200 };
+          pts[38] = { x: 38, y: 300 };
+
+          chartInstances.message = new Chart(
+            document.getElementById("messageChart"),
+            {
+              type: "scatter",
+              data: {
+                datasets: [
+                  {
+                    label: "DATA_SIZE (Byte)",
+                    data: pts,
+                    backgroundColor: pts.map((p) =>
+                      p.y > 5000 || p.y < 500 ? "#D97757CC" : "#2B4C7E55",
+                    ),
+                    pointRadius: pts.map((p) =>
+                      p.y > 5000 || p.y < 500 ? 7 : 3,
+                    ),
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    grid: { color: "#F0F2F5" },
+                    ticks: { font: { size: 10 } },
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } },
+                  },
+                },
+                plugins: { legend: { display: false } },
+              },
+            },
+          );
+        }
+
+        // ── Body: 도넛 차트 ──
+        else if (id === "body" && !chartInstances.body) {
+          chartInstances.body = new Chart(
+            document.getElementById("bodyChart"),
+            {
+              type: "doughnut",
+              data: {
+                labels: ["정상", "스키마 이상", "알 수 없음"],
+                datasets: [
+                  {
+                    data: [78, 15, 7],
+                    backgroundColor: ["#2B4C7E", "#D97757", "#BDC3C7"],
+                    borderWidth: 0,
+                    hoverOffset: 6,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: { font: { size: 11 }, padding: 14 },
+                  },
+                },
+              },
+            },
+          );
+        }
+      }
+    </script>
+  </body>
+</html>
