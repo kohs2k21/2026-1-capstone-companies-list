@@ -41,27 +41,27 @@ window.jsonSchemaCatalog = [
         "name": "COUNTRY",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"Kazakhstan\"",
-          "\"China\"",
-          "\"Poland\""
+          "\"SAMPLE_COUNTRY_A\"",
+          "\"SAMPLE_COUNTRY_B\"",
+          "\"SAMPLE_COUNTRY_C\""
         ]
       },
       {
         "name": "EMAIL",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"jbampton5e@spotify.com\"",
-          "\"mbowskill5f@webeden.co.uk\"",
-          "\"egyngyll5g@google.fr\""
+          "\"sample1@example.com\"",
+          "\"sample2@example.com\"",
+          "\"sample3@example.com\""
         ]
       },
       {
         "name": "FIRST_NAME",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"Jacenta\"",
-          "\"Matthias\"",
-          "\"Elvera\""
+          "\"HONG GIL DONG\"",
+          "\"KIM CHEOL SU\"",
+          "\"LEE YOUNG HEE\""
         ]
       },
       {
@@ -77,27 +77,27 @@ window.jsonSchemaCatalog = [
         "name": "LAST_NAME",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"Bampton\"",
-          "\"Bowskill\"",
-          "\"Gyngyll\""
+          "\"SAMPLE_LASTNAME_A\"",
+          "\"SAMPLE_LASTNAME_B\"",
+          "\"SAMPLE_LASTNAME_C\""
         ]
       },
       {
         "name": "PHONE_NUMBER",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"299-564-4471\"",
-          "\"940-494-1017\"",
-          "\"792-635-5239\""
+          "\"010-0000-0001\"",
+          "\"010-0000-0002\"",
+          "\"010-0000-0003\""
         ]
       },
       {
         "name": "STREET_ADDRESS",
         "typeDistribution": "string:106430",
         "examples": [
-          "\"93692 Helena Crossing\"",
-          "\"240 Barnett Court\"",
-          "\"7 Everett Street\""
+          "\"SAMPLE_ADDRESS_1\"",
+          "\"SAMPLE_ADDRESS_2\"",
+          "\"SAMPLE_ADDRESS_3\""
         ]
       },
       {
@@ -134,8 +134,8 @@ window.jsonSchemaCatalog = [
         "typeDistribution": "null:6000, string:2000",
         "examples": [
           "null",
-          "\"ChloePate\"",
-          "\"GodfreeCecil\""
+          "\"sample_user_01\"",
+          "\"sample_user_02\""
         ]
       },
       {
@@ -209,27 +209,27 @@ window.jsonSchemaCatalog = [
         "name": "COUNTRY",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"Syria\"",
-          "\"China\"",
-          "\"Brazil\""
+          "\"SAMPLE_COUNTRY_A\"",
+          "\"SAMPLE_COUNTRY_B\"",
+          "\"SAMPLE_COUNTRY_C\""
         ]
       },
       {
         "name": "EMAIL",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"bboldenrr@networkadvertising.org\"",
-          "\"gmanlowrq@shinystat.com\"",
-          "\"tstonhardrp@gravatar.com\""
+          "\"sample1@example.com\"",
+          "\"sample2@example.com\"",
+          "\"sample3@example.com\""
         ]
       },
       {
         "name": "FIRST_NAME",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"Bear\"",
-          "\"Gabi\"",
-          "\"Therese\""
+          "\"HONG GIL DONG\"",
+          "\"KIM CHEOL SU\"",
+          "\"LEE YOUNG HEE\""
         ]
       },
       {
@@ -245,27 +245,27 @@ window.jsonSchemaCatalog = [
         "name": "LAST_NAME",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"Bolden\"",
-          "\"Manlow\"",
-          "\"Stonhard\""
+          "\"SAMPLE_LASTNAME_A\"",
+          "\"SAMPLE_LASTNAME_B\"",
+          "\"SAMPLE_LASTNAME_C\""
         ]
       },
       {
         "name": "PHONE_NUMBER",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"372-206-5941\"",
-          "\"692-492-9270\"",
-          "\"401-227-7129\""
+          "\"010-0000-0001\"",
+          "\"010-0000-0002\"",
+          "\"010-0000-0003\""
         ]
       },
       {
         "name": "STREET_ADDRESS",
         "typeDistribution": "string:4000",
         "examples": [
-          "\"58 5th Plaza\"",
-          "\"2681 Iowa Terrace\"",
-          "\"78474 Mayfield Street\""
+          "\"SAMPLE_ADDRESS_1\"",
+          "\"SAMPLE_ADDRESS_2\"",
+          "\"SAMPLE_ADDRESS_3\""
         ]
       },
       {
@@ -453,8 +453,8 @@ window.jsonSchemaCatalog = [
         "name": "CUST_NAME",
         "typeDistribution": "string:1162",
         "examples": [
-          "\"한소희\"",
-          "\"손주선\""
+          "\"HONG GIL DONG\"",
+          "\"KIM CHEOL SU\""
         ]
       },
       {
@@ -541,27 +541,27 @@ window.jsonSchemaCatalog = [
         "name": "COUNTRY",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"Finland\"",
-          "\"Indonesia\"",
-          "\"Mexico\""
+          "\"SAMPLE_COUNTRY_A\"",
+          "\"SAMPLE_COUNTRY_B\"",
+          "\"SAMPLE_COUNTRY_C\""
         ]
       },
       {
         "name": "EMAIL",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"cpate56@pen.io\"",
-          "\"gcecil57@com.com\"",
-          "\"lmathevon59@uol.com.br\""
+          "\"sample1@example.com\"",
+          "\"sample2@example.com\"",
+          "\"sample3@example.com\""
         ]
       },
       {
         "name": "FIRST_NAME",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"Chloe\"",
-          "\"Godfree\"",
-          "\"Laney\""
+          "\"HONG GIL DONG\"",
+          "\"KIM CHEOL SU\"",
+          "\"LEE YOUNG HEE\""
         ]
       },
       {
@@ -577,9 +577,9 @@ window.jsonSchemaCatalog = [
         "name": "LAST_NAME",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"Pate\"",
-          "\"Cecil\"",
-          "\"Mathevon\""
+          "\"SAMPLE_LASTNAME_A\"",
+          "\"SAMPLE_LASTNAME_B\"",
+          "\"SAMPLE_LASTNAME_C\""
         ]
       },
       {
@@ -593,18 +593,18 @@ window.jsonSchemaCatalog = [
         "name": "PHONE_NUMBER",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"792-894-4601\"",
-          "\"382-184-4284\"",
-          "\"833-294-7948\""
+          "\"010-0000-0001\"",
+          "\"010-0000-0002\"",
+          "\"010-0000-0003\""
         ]
       },
       {
         "name": "STREET_ADDRESS",
         "typeDistribution": "string:1000",
         "examples": [
-          "\"75 Michigan Junction\"",
-          "\"70333 Loftsgordon Parkway\"",
-          "\"19 Memorial Terrace\""
+          "\"SAMPLE_ADDRESS_1\"",
+          "\"SAMPLE_ADDRESS_2\"",
+          "\"SAMPLE_ADDRESS_3\""
         ]
       },
       {
@@ -871,8 +871,8 @@ window.jsonSchemaCatalog = [
         "name": "CUST_NAME",
         "typeDistribution": "string:26",
         "examples": [
-          "\"CUST_NAME\"",
-          "\"손주선\""
+          "\"HONG GIL DONG\"",
+          "\"KIM CHEOL SU\""
         ]
       },
       {
@@ -1091,21 +1091,21 @@ window.jsonSchemaCatalog = [
         "name": "FIRST_NAME",
         "typeDistribution": "string:6",
         "examples": [
-          "\"minjae\""
+          "\"HONG GIL DONG\""
         ]
       },
       {
         "name": "LAST_NAME",
         "typeDistribution": "string:6",
         "examples": [
-          "\"lee\""
+          "\"SAMPLE_LASTNAME_A\""
         ]
       },
       {
         "name": "USERNAME",
         "typeDistribution": "string:6",
         "examples": [
-          "\"mjlee\""
+          "\"sample_user_01\""
         ]
       },
       {
@@ -1220,7 +1220,7 @@ window.jsonSchemaCatalog = [
         "name": "STREET_ADDRESS",
         "typeDistribution": "string:4",
         "examples": [
-          "\"Seoul\""
+          "\"SAMPLE_ADDRESS_1\""
         ]
       }
     ]
@@ -1569,4 +1569,4 @@ window.jsonSchemaCatalog = [
       }
     ]
   }
-];
+]
